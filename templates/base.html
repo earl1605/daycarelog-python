@@ -5,43 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DaycareLog{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac',
+                            400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
+                            800: '#166534', 900: '#14532d',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-    <header class="site-header">
-        <div class="brand">DaycareLog</div>
-        <nav>
-            {% if user.is_authenticated %}
-                {% if user.is_staff_role %}
-                    <a href="{% url 'dashboard:home' %}">Dashboard</a>
-                    <a href="{% url 'dashboard:children_list' %}">Children</a>
-                    <a href="{% url 'dashboard:guardians_list' %}">Guardians</a>
-                    <a href="{% url 'dashboard:health_records_list' %}">Health Records</a>
-                    <a href="{% url 'dashboard:attendance_list' %}">Attendance</a>
-                    {% if user.is_admin_role %}
-                        <a href="{% url 'dashboard:account_management' %}">Accounts</a>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'dashboard:parent_home' %}">My Dashboard</a>
-                {% endif %}
-                <span class="welcome">Hi, {{ user.first_name|default:user.email }} ({{ user.role }})</span>
-                <a href="{% url 'accounts:logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'accounts:login' %}">Login</a>
-                <a href="{% url 'accounts:register' %}">Register</a>
-            {% endif %}
-        </nav>
-    </header>
-
-    <main class="site-main">
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li class="message {{ message.tags }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
+<body class="antialiased text-gray-900">
+    {% if messages %}
+        <div class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-xs">
+            {% for message in messages %}
+                <div class="px-4 py-3 rounded-xl shadow-lg text-sm font-medium
+                    {% if message.tags == 'success' %}bg-primary-600 text-white
+                    {% elif message.tags == 'error' %}bg-red-600 text-white
+                    {% else %}bg-gray-800 text-white{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block body %}{% endblock %}
 </body>
 </html>

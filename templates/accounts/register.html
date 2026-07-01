@@ -1,12 +1,44 @@
-{% extends "base.html" %}
+{% extends "layouts/auth.html" %}
 {% block title %}Register - DaycareLog{% endblock %}
-{% block content %}
-    <h1>Parent/Guardian Registration</h1>
-    <p>Create an account to enroll your child and track their attendance and health records.</p>
-    <form method="post" novalidate>
+
+{% block side_panel %}
+    <div class="flex gap-3 mb-6">
+        <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center text-2xl animate-float animation-delay-0">👶</div>
+        <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center text-2xl animate-float animation-delay-200">🏥</div>
+        <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center text-2xl animate-float animation-delay-400">📋</div>
+    </div>
+    <h2 class="text-4xl font-extrabold leading-tight mb-4">Join hundreds of<br>barangay centers.</h2>
+    <p class="text-green-100 text-lg">Create an account to enroll your child and track their attendance and health records.</p>
+    <ul class="mt-6 space-y-2 text-green-100 text-sm">
+        <li class="flex items-center gap-2"><span class="text-green-300">&check;</span>Free to use</li>
+        <li class="flex items-center gap-2"><span class="text-green-300">&check;</span>Secure &amp; private</li>
+        <li class="flex items-center gap-2"><span class="text-green-300">&check;</span>DOH-aligned reports</li>
+    </ul>
+{% endblock %}
+
+{% block auth_content %}
+    <a href="{% url 'accounts:login' %}" class="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-primary-600 transition-all duration-200 mb-2 group">
+        <span class="group-hover:-translate-x-1 transition-transform duration-200 inline-block">&larr;</span> Back to Login
+    </a>
+    <h1 class="text-xl font-extrabold text-gray-900 mb-0.5">Create your account</h1>
+    <p class="text-gray-500 text-xs mb-3">Parent/Guardian registration for DaycareLog</p>
+
+    {% if form.non_field_errors %}
+        <div class="mb-3 px-3 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+            {{ form.non_field_errors|striptags }}
+        </div>
+    {% endif %}
+
+    <form method="post" novalidate class="form-styled space-y-1">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Register</button>
+        <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-xl transition-colors shadow-sm mt-2">
+            Create Account
+        </button>
     </form>
-    <p>Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+
+    <p class="text-center text-xs text-gray-500 mt-3">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}" class="text-primary-600 font-semibold hover:underline">Sign in</a>
+    </p>
 {% endblock %}

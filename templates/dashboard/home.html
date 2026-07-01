@@ -1,52 +1,92 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 {% block title %}Dashboard - DaycareLog{% endblock %}
 {% block content %}
-    <h1>Staff/Admin Dashboard</h1>
-    <div class="dashboard-grid">
-        <div class="stat-card">
-            <div class="stat-value">{{ total_children }}</div>
-            <div>Total Children</div>
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-extrabold text-gray-900">Welcome back, {{ user.first_name|default:user.email }} 👋</h1>
+        <p class="text-gray-500 text-sm mt-1">{% now "l, F j, Y" %}</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-primary-50 text-primary-600">👦</div>
+            <div>
+                <p class="text-sm text-gray-500">Total Children</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_children }}</p>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ enrolled_count }}</div>
-            <div>Enrolled</div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-blue-50 text-blue-600">✅</div>
+            <div>
+                <p class="text-sm text-gray-500">Enrolled</p>
+                <p class="text-2xl font-bold text-gray-900">{{ enrolled_count }}</p>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ pending_count }}</div>
-            <div>Pending</div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-orange-50 text-orange-600">⏳</div>
+            <div>
+                <p class="text-sm text-gray-500">Pending</p>
+                <p class="text-2xl font-bold text-gray-900">{{ pending_count }}</p>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ guardian_count }}</div>
-            <div>Guardians</div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-purple-50 text-purple-600">👪</div>
+            <div>
+                <p class="text-sm text-gray-500">Guardians</p>
+                <p class="text-2xl font-bold text-gray-900">{{ guardian_count }}</p>
+            </div>
         </div>
     </div>
 
-    <h2>Menus</h2>
-    <ul>
-        <li><a href="{% url 'dashboard:children_list' %}">Enrolled Children</a></li>
-        <li><a href="{% url 'dashboard:guardians_list' %}">Parent/Guardian Records</a></li>
-        <li><a href="{% url 'dashboard:health_records_list' %}">Health Records</a></li>
-        <li><a href="{% url 'dashboard:attendance_list' %}">Attendance</a></li>
-        {% if user.is_admin_role %}
-            <li><a href="{% url 'dashboard:account_management' %}">Account Management</a></li>
-        {% endif %}
-    </ul>
+    <div>
+        <h2 class="font-bold text-gray-900 mb-3">Quick Actions</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="{% url 'dashboard:children_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
+                <span class="text-2xl">👦</span>
+                <span class="text-sm font-medium text-gray-700">Children</span>
+            </a>
+            <a href="{% url 'dashboard:attendance_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
+                <span class="text-2xl">📋</span>
+                <span class="text-sm font-medium text-gray-700">Attendance</span>
+            </a>
+            <a href="{% url 'dashboard:health_records_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
+                <span class="text-2xl">❤️</span>
+                <span class="text-sm font-medium text-gray-700">Health Records</span>
+            </a>
+            <a href="{% url 'dashboard:guardians_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
+                <span class="text-2xl">👪</span>
+                <span class="text-sm font-medium text-gray-700">Guardians</span>
+            </a>
+        </div>
+    </div>
 
-    <h2>Recent Health Records</h2>
-    <table>
-        <thead>
-            <tr><th>Child</th><th>Date</th><th>Notes</th></tr>
-        </thead>
-        <tbody>
-            {% for record in recent_health_records %}
-                <tr>
-                    <td>{{ record.child }}</td>
-                    <td>{{ record.record_date }}</td>
-                    <td>{{ record.notes|default:"-" }}</td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="3">No health records yet.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold text-gray-900">Recent Health Records</h2>
+            <a href="{% url 'dashboard:health_records_list' %}" class="text-primary-600 text-sm font-medium hover:underline">View all &rarr;</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-500 border-b border-gray-100">
+                        <th class="py-2 pr-4 font-medium">Child</th>
+                        <th class="py-2 pr-4 font-medium">Date</th>
+                        <th class="py-2 pr-4 font-medium">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in recent_health_records %}
+                        <tr class="border-b border-gray-50 last:border-0">
+                            <td class="py-2.5 pr-4 font-medium text-gray-900">{{ record.child }}</td>
+                            <td class="py-2.5 pr-4 text-gray-500">{{ record.record_date }}</td>
+                            <td class="py-2.5 pr-4 text-gray-500">{{ record.notes|default:"—" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="py-4 text-center text-gray-400">No health records yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+<div class="min-h-screen flex bg-animated-gradient">
+    <div class="hidden lg:flex flex-col justify-between w-1/2 p-12 text-white">
+        <a href="{% url 'accounts:login' %}" class="flex items-center gap-3">
+            <img src="{% static 'img/favicon.svg' %}" alt="DaycareLog" class="w-11 h-11 flex-shrink-0">
+            <span class="font-extrabold text-4xl tracking-wide">
+                {% for char in "DaycareLog" %}<span class="wave-letter">{{ char }}</span>{% endfor %}
+            </span>
+        </a>
+        <div>
+            {% block side_panel %}
+            <div class="flex gap-3 mb-6">
+                <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center text-2xl animate-float animation-delay-0">📝</div>
+                <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center text-2xl animate-float animation-delay-200">❤️</div>
+                <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center text-2xl animate-float animation-delay-400">📊</div>
+            </div>
+            <h2 class="text-4xl font-extrabold leading-tight mb-4">Your barangay's<br>health data, simplified.</h2>
+            <p class="text-green-100 text-lg">Enrollment, attendance, nutritional monitoring — all in one place.</p>
+            {% endblock %}
+        </div>
+        <p class="text-green-200 text-sm">&copy; {% now "Y" %} DaycareLog &middot; Philippines</p>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-5 sm:p-8 animate-scale-in my-auto">
+            <div class="flex lg:hidden items-center gap-2.5 mb-6">
+                <img src="{% static 'img/favicon.svg' %}" alt="DaycareLog" class="w-9 h-9 flex-shrink-0">
+                <span class="font-extrabold text-primary-700 text-3xl tracking-wide">
+                    {% for char in "DaycareLog" %}<span class="wave-letter">{{ char }}</span>{% endfor %}
+                </span>
+            </div>
+            {% block auth_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

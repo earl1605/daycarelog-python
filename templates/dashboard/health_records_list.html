@@ -1,25 +1,38 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 {% block title %}Health Records - DaycareLog{% endblock %}
 {% block content %}
-    <h1>Health Records</h1>
-    <table>
-        <thead>
-            <tr><th>Child</th><th>Date</th><th>Height (cm)</th><th>Weight (kg)</th><th>Temp (C)</th><th>Allergies</th><th>Recorded By</th></tr>
-        </thead>
-        <tbody>
-            {% for record in records %}
-                <tr>
-                    <td>{{ record.child }}</td>
-                    <td>{{ record.record_date }}</td>
-                    <td>{{ record.height_cm|default:"-" }}</td>
-                    <td>{{ record.weight_kg|default:"-" }}</td>
-                    <td>{{ record.temperature_c|default:"-" }}</td>
-                    <td>{{ record.allergies|default:"-" }}</td>
-                    <td>{{ record.recorded_by|default:"-" }}</td>
+<div class="space-y-6">
+    <h1 class="text-2xl font-extrabold text-gray-900">Health Records</h1>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100">
+                    <th class="py-2 pr-4 font-medium">Child</th>
+                    <th class="py-2 pr-4 font-medium">Date</th>
+                    <th class="py-2 pr-4 font-medium">Height (cm)</th>
+                    <th class="py-2 pr-4 font-medium">Weight (kg)</th>
+                    <th class="py-2 pr-4 font-medium">Temp (&deg;C)</th>
+                    <th class="py-2 pr-4 font-medium">Allergies</th>
+                    <th class="py-2 pr-4 font-medium">Recorded By</th>
                 </tr>
-            {% empty %}
-                <tr><td colspan="7">No health records yet.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                    <tr class="border-b border-gray-50 last:border-0">
+                        <td class="py-2.5 pr-4 font-medium text-gray-900">{{ record.child }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ record.record_date }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ record.height_cm|default:"—" }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ record.weight_kg|default:"—" }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ record.temperature_c|default:"—" }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ record.allergies|default:"—" }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ record.recorded_by|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="py-4 text-center text-gray-400">No health records yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

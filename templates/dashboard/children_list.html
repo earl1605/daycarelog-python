@@ -1,23 +1,41 @@
-{% extends "base.html" %}
+{% extends "layouts/app.html" %}
 {% block title %}Enrolled Children - DaycareLog{% endblock %}
 {% block content %}
-    <h1>Enrolled Children</h1>
-    <table>
-        <thead>
-            <tr><th>Name</th><th>Date of Birth</th><th>Sex</th><th>Status</th><th>Guardian</th></tr>
-        </thead>
-        <tbody>
-            {% for child in children %}
-                <tr>
-                    <td>{{ child.first_name }} {{ child.last_name }}</td>
-                    <td>{{ child.date_of_birth }}</td>
-                    <td>{{ child.get_sex_display }}</td>
-                    <td>{{ child.get_status_display }}</td>
-                    <td>{{ child.guardian }}</td>
+<div class="space-y-6">
+    <h1 class="text-2xl font-extrabold text-gray-900">Enrolled Children</h1>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="text-left text-gray-500 border-b border-gray-100">
+                    <th class="py-2 pr-4 font-medium">Name</th>
+                    <th class="py-2 pr-4 font-medium">Date of Birth</th>
+                    <th class="py-2 pr-4 font-medium">Sex</th>
+                    <th class="py-2 pr-4 font-medium">Status</th>
+                    <th class="py-2 pr-4 font-medium">Guardian</th>
                 </tr>
-            {% empty %}
-                <tr><td colspan="5">No children enrolled yet.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for child in children %}
+                    <tr class="border-b border-gray-50 last:border-0">
+                        <td class="py-2.5 pr-4 font-medium text-gray-900">{{ child.first_name }} {{ child.last_name }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ child.date_of_birth }}</td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ child.get_sex_display }}</td>
+                        <td class="py-2.5 pr-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if child.status == 'ENROLLED' %}bg-green-100 text-green-800
+                                {% elif child.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {{ child.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="py-2.5 pr-4 text-gray-500">{{ child.guardian }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5" class="py-4 text-center text-gray-400">No children enrolled yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

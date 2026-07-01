@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+
+  <!-- Dark green rounded background -->
+  <rect width="64" height="64" rx="14" ry="14" fill="#052e16"/>
+
+  <!-- Head -->
+  <path
+    d="M32,5 C37,5 41,9 41,14 C41,19 37,23 32,23 C27,23 23,19 23,14 C23,9 27,5 32,5 Z"
+    fill="white"/>
+
+  <!-- Body / torso -->
+  <path
+    d="M22,26 L22,44 L42,44 L42,26 Z"
+    fill="white"/>
+
+  <!-- Left leg -->
+  <path
+    d="M22,44 L22,59 L29,59 L29,44 Z"
+    fill="white"/>
+
+  <!-- Right leg -->
+  <path
+    d="M35,44 L35,59 L42,59 L42,44 Z"
+    fill="white"/>
+
+</svg>
