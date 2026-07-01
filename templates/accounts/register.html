@@ -29,9 +29,60 @@
         </div>
     {% endif %}
 
-    <form method="post" novalidate class="form-styled space-y-1">
+    <form method="post" novalidate class="form-styled space-y-2.5">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {{ form.first_name.errors }}
+            </div>
+            <div>
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {{ form.last_name.errors }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                {{ form.middle_name.label_tag }}
+                {{ form.middle_name }}
+                {{ form.middle_name.errors }}
+            </div>
+            <div>
+                {{ form.suffix.label_tag }}
+                {{ form.suffix }}
+                {{ form.suffix.errors }}
+            </div>
+        </div>
+
+        <div>
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+
+        <div>
+            {{ form.contact_number.label_tag }}
+            {{ form.contact_number }}
+            {{ form.contact_number.errors }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+            <div>
+                {{ form.confirm_password.label_tag }}
+                {{ form.confirm_password }}
+                {{ form.confirm_password.errors }}
+            </div>
+        </div>
+
         <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-xl transition-colors shadow-sm mt-2">
             Create Account
         </button>

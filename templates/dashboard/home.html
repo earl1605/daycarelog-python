@@ -3,7 +3,9 @@
 {% block content %}
 <div class="space-y-6">
     <div>
-        <h1 class="text-2xl font-extrabold text-gray-900">Welcome back, {{ user.first_name|default:user.email }} 👋</h1>
+        <h1 class="text-2xl font-extrabold text-gray-900">
+            Good {{ greeting }}, {{ user.first_name|default:user.email }} 👋
+        </h1>
         <p class="text-gray-500 text-sm mt-1">{% now "l, F j, Y" %}</p>
     </div>
 
@@ -11,30 +13,40 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-primary-50 text-primary-600">👦</div>
             <div>
-                <p class="text-sm text-gray-500">Total Children</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_children }}</p>
+                <p class="text-sm text-gray-500">Active Children</p>
+                <p class="text-2xl font-bold text-gray-900">{{ active_count }}</p>
             </div>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-blue-50 text-blue-600">✅</div>
             <div>
-                <p class="text-sm text-gray-500">Enrolled</p>
-                <p class="text-2xl font-bold text-gray-900">{{ enrolled_count }}</p>
+                <p class="text-sm text-gray-500">Present Today</p>
+                <p class="text-2xl font-bold text-gray-900">{{ present_today }}</p>
             </div>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-orange-50 text-orange-600">⏳</div>
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-purple-50 text-purple-600">📋</div>
             <div>
-                <p class="text-sm text-gray-500">Pending</p>
-                <p class="text-2xl font-bold text-gray-900">{{ pending_count }}</p>
+                <p class="text-sm text-gray-500">Total Enrolled</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_children }}</p>
             </div>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-purple-50 text-purple-600">👪</div>
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-orange-50 text-orange-600">📅</div>
             <div>
-                <p class="text-sm text-gray-500">Guardians</p>
-                <p class="text-2xl font-bold text-gray-900">{{ guardian_count }}</p>
+                <p class="text-sm text-gray-500">Attendance Rate</p>
+                <p class="text-2xl font-bold text-gray-900">{% if attendance_rate is not None %}{{ attendance_rate }}%{% else %}—{% endif %}</p>
             </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold text-gray-900">Weekly Attendance</h2>
+            <a href="{% url 'dashboard:attendance_list' %}" class="text-primary-600 text-sm font-medium hover:underline">View all &rarr;</a>
+        </div>
+        <div style="height: 220px;">
+            <canvas id="attendanceChart"></canvas>
         </div>
     </div>
 
@@ -59,34 +71,41 @@
             </a>
         </div>
     </div>
-
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="font-bold text-gray-900">Recent Health Records</h2>
-            <a href="{% url 'dashboard:health_records_list' %}" class="text-primary-600 text-sm font-medium hover:underline">View all &rarr;</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="text-left text-gray-500 border-b border-gray-100">
-                        <th class="py-2 pr-4 font-medium">Child</th>
-                        <th class="py-2 pr-4 font-medium">Date</th>
-                        <th class="py-2 pr-4 font-medium">Notes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in recent_health_records %}
-                        <tr class="border-b border-gray-50 last:border-0">
-                            <td class="py-2.5 pr-4 font-medium text-gray-900">{{ record.child }}</td>
-                            <td class="py-2.5 pr-4 text-gray-500">{{ record.record_date }}</td>
-                            <td class="py-2.5 pr-4 text-gray-500">{{ record.notes|default:"—" }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr><td colspan="3" class="py-4 text-center text-gray-400">No health records yet.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
+
+{{ weekly_labels|json_script:"weekly-labels-data" }}
+{{ weekly_present|json_script:"weekly-present-data" }}
+{{ weekly_absent|json_script:"weekly-absent-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        const labels = JSON.parse(document.getElementById('weekly-labels-data').textContent);
+        const present = JSON.parse(document.getElementById('weekly-present-data').textContent);
+        const absent = JSON.parse(document.getElementById('weekly-absent-data').textContent);
+
+        new Chart(document.getElementById('attendanceChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Present', data: present, backgroundColor: '#16a34a', borderRadius: 4, maxBarThickness: 28 },
+                    { label: 'Absent', data: absent, backgroundColor: '#fca5a5', borderRadius: 4, maxBarThickness: 28 },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 12 } } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0, color: '#6b7280', font: { size: 12 } },
+                        grid: { color: '#f3f4f6' },
+                    },
+                },
+            },
+        });
+    })();
+</script>
 {% endblock %}

@@ -8,11 +8,26 @@ class User(AbstractUser):
         STAFF = "STAFF", "Staff"
         ADMIN = "ADMIN", "Admin"
 
+    class Suffix(models.TextChoices):
+        NONE = "", "— None —"
+        JR = "Jr.", "Jr."
+        SR = "Sr.", "Sr."
+        II = "II", "II"
+        III = "III", "III"
+        IV = "IV", "IV"
+        V = "V", "V"
+
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.PARENT)
     email = models.EmailField(unique=True)
     contact_number = models.CharField(max_length=20, blank=True)
+    middle_name = models.CharField(max_length=150, blank=True)
+    suffix = models.CharField(max_length=10, choices=Suffix.choices, blank=True)
 
     REQUIRED_FIELDS = ["email"]
+
+    def get_full_name(self):
+        parts = [self.first_name, self.middle_name, self.last_name, self.suffix]
+        return " ".join(part for part in parts if part).strip()
 
     @property
     def is_parent(self):

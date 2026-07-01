@@ -9,5 +9,5 @@ class DaycareUserAdmin(UserAdmin):
     list_display = ("email", "first_name", "last_name", "role", "is_active")
     list_filter = ("role", "is_active")
     fieldsets = UserAdmin.fieldsets + (
-        ("DaycareLog", {"fields": ("role", "contact_number")}),
+        ("DaycareLog", {"fields": ("role", "contact_number", "middle_name", "suffix")}),
     )

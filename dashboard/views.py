@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from accounts.decorators import admin_required, staff_or_admin_required
 from accounts.forms import StaffAccountForm
@@ -12,12 +15,39 @@ User = get_user_model()
 
 @staff_or_admin_required
 def home(request):
+    now = timezone.localtime()
+    today = now.date()
+
+    active_count = Child.objects.filter(status=Child.Status.ENROLLED).count()
+    total_children = Child.objects.count()
+    present_today = Attendance.objects.filter(date=today, status=Attendance.Status.PRESENT).count()
+    attendance_rate = round((present_today / active_count) * 100) if active_count else None
+
+    days = [today - timedelta(days=offset) for offset in range(6, -1, -1)]
+    weekly_labels = [day.strftime("%a") for day in days]
+    weekly_present = []
+    weekly_absent = []
+    for day in days:
+        day_records = Attendance.objects.filter(date=day)
+        weekly_present.append(day_records.filter(status=Attendance.Status.PRESENT).count())
+        weekly_absent.append(day_records.filter(status=Attendance.Status.ABSENT).count())
+
+    if now.hour < 12:
+        greeting = "morning"
+    elif now.hour < 17:
+        greeting = "afternoon"
+    else:
+        greeting = "evening"
+
     context = {
-        "total_children": Child.objects.count(),
-        "enrolled_count": Child.objects.filter(status=Child.Status.ENROLLED).count(),
-        "pending_count": Child.objects.filter(status=Child.Status.PENDING).count(),
-        "guardian_count": GuardianProfile.objects.count(),
-        "recent_health_records": HealthRecord.objects.select_related("child")[:5],
+        "greeting": greeting,
+        "active_count": active_count,
+        "total_children": total_children,
+        "present_today": present_today,
+        "attendance_rate": attendance_rate,
+        "weekly_labels": weekly_labels,
+        "weekly_present": weekly_present,
+        "weekly_absent": weekly_absent,
     }
     return render(request, "dashboard/home.html", context)
 

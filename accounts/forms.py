@@ -12,6 +12,8 @@ class ParentRegistrationForm(forms.Form):
 
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
+    middle_name = forms.CharField(max_length=150, required=False)
+    suffix = forms.ChoiceField(choices=User.Suffix.choices, required=False)
     email = forms.EmailField()
     contact_number = forms.CharField(max_length=20, required=False)
     password = forms.CharField(widget=forms.PasswordInput, min_length=8)
@@ -38,6 +40,8 @@ class ParentRegistrationForm(forms.Form):
             email=email,
             first_name=self.cleaned_data["first_name"],
             last_name=self.cleaned_data["last_name"],
+            middle_name=self.cleaned_data.get("middle_name", ""),
+            suffix=self.cleaned_data.get("suffix", ""),
             contact_number=self.cleaned_data.get("contact_number", ""),
             role=User.Role.PARENT,
         )
