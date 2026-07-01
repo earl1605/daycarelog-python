@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Parent/Guardian Records - DaycareLog{% endblock %}
+{% block content %}
+    <h1>Parent/Guardian Records</h1>
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Email</th><th>Contact Number</th><th>Address</th><th>Children</th></tr>
+        </thead>
+        <tbody>
+            {% for guardian in guardians %}
+                <tr>
+                    <td>{{ guardian.user.get_full_name }}</td>
+                    <td>{{ guardian.user.email }}</td>
+                    <td>{{ guardian.user.contact_number|default:"-" }}</td>
+                    <td>{{ guardian.address|default:"-" }}</td>
+                    <td>{{ guardian.children.count }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No guardian records yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

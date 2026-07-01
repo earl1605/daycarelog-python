@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DaycareLog{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">DaycareLog</div>
+        <nav>
+            {% if user.is_authenticated %}
+                {% if user.is_staff_role %}
+                    <a href="{% url 'dashboard:home' %}">Dashboard</a>
+                    <a href="{% url 'dashboard:children_list' %}">Children</a>
+                    <a href="{% url 'dashboard:guardians_list' %}">Guardians</a>
+                    <a href="{% url 'dashboard:health_records_list' %}">Health Records</a>
+                    <a href="{% url 'dashboard:attendance_list' %}">Attendance</a>
+                    {% if user.is_admin_role %}
+                        <a href="{% url 'dashboard:account_management' %}">Accounts</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'dashboard:parent_home' %}">My Dashboard</a>
+                {% endif %}
+                <span class="welcome">Hi, {{ user.first_name|default:user.email }} ({{ user.role }})</span>
+                <a href="{% url 'accounts:logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}">Login</a>
+                <a href="{% url 'accounts:register' %}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="site-main">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

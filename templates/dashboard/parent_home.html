@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard - DaycareLog{% endblock %}
+{% block content %}
+    <h1>Welcome, {{ user.first_name }}</h1>
+
+    {% if not guardian_profile %}
+        <p>Your guardian profile has not been set up yet. Please contact the daycare staff.</p>
+    {% else %}
+        <h2>My Children</h2>
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Date of Birth</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for child in children %}
+                    <tr>
+                        <td>{{ child.first_name }} {{ child.last_name }}</td>
+                        <td>{{ child.date_of_birth }}</td>
+                        <td>{{ child.get_status_display }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="3">No children enrolled yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

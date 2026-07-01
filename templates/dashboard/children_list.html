@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Enrolled Children - DaycareLog{% endblock %}
+{% block content %}
+    <h1>Enrolled Children</h1>
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Date of Birth</th><th>Sex</th><th>Status</th><th>Guardian</th></tr>
+        </thead>
+        <tbody>
+            {% for child in children %}
+                <tr>
+                    <td>{{ child.first_name }} {{ child.last_name }}</td>
+                    <td>{{ child.date_of_birth }}</td>
+                    <td>{{ child.get_sex_display }}</td>
+                    <td>{{ child.get_status_display }}</td>
+                    <td>{{ child.guardian }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No children enrolled yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

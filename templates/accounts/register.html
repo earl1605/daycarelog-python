@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Register - DaycareLog{% endblock %}
+{% block content %}
+    <h1>Parent/Guardian Registration</h1>
+    <p>Create an account to enroll your child and track their attendance and health records.</p>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+{% endblock %}

@@ -1,0 +1,128 @@
+* { box-sizing: border-box; }
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
+    color: #1f2933;
+}
+
+.site-header {
+    background: #2f6f4f;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+}
+
+.site-header .brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.site-header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-size: 0.95rem;
+}
+
+.site-header nav a:hover {
+    text-decoration: underline;
+}
+
+.welcome {
+    margin-left: 1rem;
+    opacity: 0.85;
+    font-size: 0.9rem;
+}
+
+.site-main {
+    max-width: 960px;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.messages .message {
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.messages .success { background: #e3f6e8; color: #1c6b32; }
+.messages .error { background: #fce8e6; color: #a12a1e; }
+.messages .info { background: #e6f0fc; color: #1a4c8a; }
+
+form p { margin-bottom: 1rem; }
+
+label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+
+input, select, textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccd3da;
+    border-radius: 4px;
+}
+
+button, .btn {
+    background: #2f6f4f;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .btn:hover { background: #255a3f; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid #e2e6ea;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: #f0f4f2;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2f6f4f;
+}
+
+.errorlist {
+    color: #a12a1e;
+    list-style: none;
+    padding: 0;
+    font-size: 0.85rem;
+}

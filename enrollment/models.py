@@ -1,0 +1,81 @@
+from django.conf import settings
+from django.db import models
+
+
+class GuardianProfile(models.Model):
+    """Extra fields for a User with role=PARENT."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="guardian_profile",
+        limit_choices_to={"role": "PARENT"},
+    )
+    address = models.CharField(max_length=255, blank=True)
+    relationship_to_child = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.email
+
+
+class Child(models.Model):
+    class Sex(models.TextChoices):
+        MALE = "M", "Male"
+        FEMALE = "F", "Female"
+
+    class Status(models.TextChoices):
+        ENROLLED = "ENROLLED", "Enrolled"
+        PENDING = "PENDING", "Pending"
+        WITHDRAWN = "WITHDRAWN", "Withdrawn"
+
+    guardian = models.ForeignKey(
+        GuardianProfile, on_delete=models.CASCADE, related_name="children"
+    )
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    date_of_birth = models.DateField()
+    sex = models.CharField(max_length=1, choices=Sex.choices)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    enrollment_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class HealthRecord(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="health_records")
+    record_date = models.DateField()
+    height_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    weight_kg = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    temperature_c = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    allergies = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        limit_choices_to={"role__in": ["STAFF", "ADMIN"]},
+    )
+
+    class Meta:
+        ordering = ["-record_date"]
+
+    def __str__(self):
+        return f"{self.child} - {self.record_date}"
+
+
+class Attendance(models.Model):
+    class Status(models.TextChoices):
+        PRESENT = "PRESENT", "Present"
+        ABSENT = "ABSENT", "Absent"
+        LATE = "LATE", "Late"
+
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="attendance_records")
+    date = models.DateField()
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PRESENT)
+    remarks = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = ("child", "date")
+        ordering = ["-date"]
+
+    def __str__(self):
+        return f"{self.child} - {self.date} ({self.status})"

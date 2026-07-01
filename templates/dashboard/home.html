@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - DaycareLog{% endblock %}
+{% block content %}
+    <h1>Staff/Admin Dashboard</h1>
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_children }}</div>
+            <div>Total Children</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ enrolled_count }}</div>
+            <div>Enrolled</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ pending_count }}</div>
+            <div>Pending</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ guardian_count }}</div>
+            <div>Guardians</div>
+        </div>
+    </div>
+
+    <h2>Menus</h2>
+    <ul>
+        <li><a href="{% url 'dashboard:children_list' %}">Enrolled Children</a></li>
+        <li><a href="{% url 'dashboard:guardians_list' %}">Parent/Guardian Records</a></li>
+        <li><a href="{% url 'dashboard:health_records_list' %}">Health Records</a></li>
+        <li><a href="{% url 'dashboard:attendance_list' %}">Attendance</a></li>
+        {% if user.is_admin_role %}
+            <li><a href="{% url 'dashboard:account_management' %}">Account Management</a></li>
+        {% endif %}
+    </ul>
+
+    <h2>Recent Health Records</h2>
+    <table>
+        <thead>
+            <tr><th>Child</th><th>Date</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+            {% for record in recent_health_records %}
+                <tr>
+                    <td>{{ record.child }}</td>
+                    <td>{{ record.record_date }}</td>
+                    <td>{{ record.notes|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3">No health records yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
