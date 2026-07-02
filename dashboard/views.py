@@ -1,18 +1,38 @@
-from datetime import timedelta
+import calendar
+import csv
+from datetime import date, timedelta
 
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from accounts.decorators import admin_required, staff_or_admin_required
-from accounts.forms import StaffAccountForm
+from accounts.forms import ProfileForm, StaffAccountForm
 from dashboard.forms import AttendanceForm, ChildForm, GuardianProfileForm, HealthRecordForm
 from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord
 
 User = get_user_model()
+
+
+def _month_range(month_str):
+    """Parse a 'YYYY-MM' string (defaulting to the current month) into
+    (year, month, first_day, last_day)."""
+    if month_str:
+        try:
+            year, month = (int(part) for part in month_str.split("-"))
+        except (ValueError, TypeError):
+            year, month = timezone.localdate().year, timezone.localdate().month
+    else:
+        today = timezone.localdate()
+        year, month = today.year, today.month
+    first_day = date(year, month, 1)
+    last_day = date(year, month, calendar.monthrange(year, month)[1])
+    return year, month, first_day, last_day
 
 
 @staff_or_admin_required
@@ -228,6 +248,75 @@ def account_management(request):
         form = StaffAccountForm()
     return render(
         request, "dashboard/account_management.html", {"accounts": accounts, "form": form}
+    )
+
+
+@staff_or_admin_required
+def reports(request):
+    month_str = request.GET.get("month", "")
+    year, month, first_day, last_day = _month_range(month_str)
+
+    month_attendance = Attendance.objects.filter(date__gte=first_day, date__lte=last_day)
+    school_days = month_attendance.values("date").distinct().count()
+    present_count = month_attendance.filter(status=Attendance.Status.PRESENT).count()
+    absent_count = month_attendance.filter(status=Attendance.Status.ABSENT).count()
+    marked_count = present_count + absent_count
+    attendance_rate = round((present_count / marked_count) * 100) if marked_count else 0
+
+    context = {
+        "selected_month": f"{year:04d}-{month:02d}",
+        "active_children": Child.objects.filter(status=Child.Status.ENROLLED).count(),
+        "school_days": school_days,
+        "present_count": present_count,
+        "absent_count": absent_count,
+        "attendance_rate": attendance_rate,
+    }
+    return render(request, "dashboard/reports.html", context)
+
+
+@staff_or_admin_required
+def reports_export_csv(request):
+    month_str = request.GET.get("month", "")
+    year, month, _, _ = _month_range(month_str)
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="report_{year:04d}-{month:02d}.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["Name", "Sex", "Date of Birth", "Status"])
+    for child in Child.objects.order_by("first_name", "last_name"):
+        writer.writerow([
+            f"{child.first_name} {child.last_name}",
+            child.get_sex_display(),
+            child.date_of_birth,
+            child.get_status_display(),
+        ])
+    return response
+
+
+@login_required
+def settings_view(request):
+    if request.method == "POST":
+        if "save_profile" in request.POST:
+            profile_form = ProfileForm(request.POST, instance=request.user)
+            password_form = PasswordChangeForm(request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profile updated.")
+                return redirect("dashboard:settings")
+        else:
+            profile_form = ProfileForm(instance=request.user)
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, "Password changed.")
+                return redirect("dashboard:settings")
+    else:
+        profile_form = ProfileForm(instance=request.user)
+        password_form = PasswordChangeForm(request.user)
+
+    return render(
+        request, "dashboard/settings.html", {"profile_form": profile_form, "password_form": password_form}
     )
 
 

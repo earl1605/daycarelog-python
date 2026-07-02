@@ -1,0 +1,46 @@
+{% extends "layouts/app.html" %}
+{% load icons %}
+{% block title %}Reports - DaycareLog{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <h1 class="text-[22px] font-bold text-gray-900">Reports</h1>
+        <form method="get" class="flex gap-2 flex-wrap">
+            <input type="month" name="month" value="{{ selected_month }}" onchange="this.form.submit()"
+                class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400">
+            <a href="{% url 'dashboard:reports_export_csv' %}?month={{ selected_month }}"
+                class="inline-flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors duration-150">
+                {% icon "download" cls="w-4 h-4" %} Export CSV
+            </a>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl border border-gray-200/70 p-6">
+            <h2 class="text-[17px] font-bold text-gray-900 mb-4">Attendance Summary</h2>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Active Children</span>
+                    <span class="font-semibold text-gray-900">{{ active_children }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">School Days</span>
+                    <span class="font-semibold text-gray-900">{{ school_days }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Total Present</span>
+                    <span class="font-semibold text-gray-900">{{ present_count }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Total Absent</span>
+                    <span class="font-semibold text-gray-900">{{ absent_count }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Attendance Rate</span>
+                    <span class="font-semibold text-gray-900">{{ attendance_rate }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

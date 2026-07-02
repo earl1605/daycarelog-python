@@ -94,3 +94,16 @@ class StaffAccountForm(forms.Form):
 
 class DaycareLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
+
+
+class ProfileForm(forms.ModelForm):
+    """Used from the Settings page for a user to edit their own name fields."""
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "middle_name", "suffix"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "given-name"}),
+            "last_name": forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "family-name"}),
+            "middle_name": forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "additional-name"}),
+        }

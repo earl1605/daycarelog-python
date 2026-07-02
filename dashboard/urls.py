@@ -19,5 +19,8 @@ urlpatterns = [
     path("attendance/<int:pk>/edit/", views.attendance_edit, name="attendance_edit"),
     path("attendance/<int:pk>/delete/", views.attendance_delete, name="attendance_delete"),
     path("accounts-management/", views.account_management, name="account_management"),
+    path("reports/", views.reports, name="reports"),
+    path("reports/export/", views.reports_export_csv, name="reports_export_csv"),
+    path("settings/", views.settings_view, name="settings"),
     path("parent/", views.parent_home, name="parent_home"),
 ]

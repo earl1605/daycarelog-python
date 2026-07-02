@@ -24,6 +24,8 @@
             {% url 'dashboard:guardians_list' as url_guardians %}
             {% url 'dashboard:health_records_list' as url_health %}
             {% url 'dashboard:attendance_list' as url_attendance %}
+            {% url 'dashboard:reports' as url_reports %}
+            {% url 'dashboard:settings' as url_settings %}
             {% url 'dashboard:account_management' as url_accounts %}
             {% url 'dashboard:parent_home' as url_parent %}
 
@@ -54,6 +56,22 @@
                     </div>
                 </div>
 
+                <div>
+                    <div class="h-px bg-gray-200/70 mb-5 -mt-2.5 mx-1"></div>
+                    <p class="px-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Management</p>
+                    <div class="space-y-0.5">
+                        <a href="{{ url_reports }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_reports %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "bar-chart" %}
+                            <span class="flex-1 truncate">Reports</span>
+                        </a>
+                        <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "settings" %}
+                            <span class="flex-1 truncate">Settings</span>
+                            {% icon "chevron-down" cls="shrink-0 w-3.5 h-3.5 ml-auto text-gray-400" %}
+                        </a>
+                    </div>
+                </div>
+
                 {% if user.is_admin_role %}
                     <div>
                         <div class="h-px bg-gray-200/70 mb-5 -mt-2.5 mx-1"></div>
@@ -61,7 +79,7 @@
                         <div class="space-y-0.5">
                             <a href="{{ url_accounts }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_accounts %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                                 {% icon "users" %}
-                                <span class="flex-1 truncate">Accounts</span>
+                                <span class="flex-1 truncate">Users</span>
                             </a>
                         </div>
                     </div>
@@ -73,6 +91,10 @@
                         <a href="{{ url_parent }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "home" %}
                             <span class="flex-1 truncate">My Dashboard</span>
+                        </a>
+                        <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "settings" %}
+                            <span class="flex-1 truncate">Settings</span>
                         </a>
                     </div>
                 </div>
