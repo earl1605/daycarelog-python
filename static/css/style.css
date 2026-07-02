@@ -33,6 +33,45 @@
   50% { transform: translateY(-20px); }
 }
 .animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-slow { animation: float 9s ease-in-out infinite; }
+.animate-float-fast { animation: float 4s ease-in-out infinite; }
+
+/* Fade-in entrance animations */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.anim-hidden { opacity: 0; }
+.animate-fade-in { animation: fadeIn 0.8s ease forwards; }
+.animate-fade-in-up { animation: fadeInUp 0.6s ease forwards; }
+
+/* Slow bounce for the "scroll down" hint */
+@keyframes bounceSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-bounce-slow { animation: bounceSlow 3s ease-in-out infinite; }
+
+/* Scroll-reveal helper (paired with the IntersectionObserver in landing.html) */
+.reveal, .reveal-left, .reveal-right {
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal { transform: translateY(30px); }
+.reveal-left { transform: translateX(-30px); }
+.reveal-right { transform: translateX(30px); }
+.reveal.visible, .reveal-left.visible, .reveal-right.visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Readable text on gradient backgrounds */
+.text-shadow-strong { text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
+.text-shadow-soft { text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3); }
 
 /* Scale-in for auth cards */
 @keyframes scaleIn {
@@ -41,9 +80,16 @@
 }
 .animate-scale-in { animation: scaleIn 0.5s ease forwards; }
 
-.animation-delay-0   { animation-delay: 0s; }
-.animation-delay-200 { animation-delay: 0.2s; }
-.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-0    { animation-delay: 0s; }
+.animation-delay-100  { animation-delay: 0.1s; }
+.animation-delay-200  { animation-delay: 0.2s; }
+.animation-delay-300  { animation-delay: 0.3s; }
+.animation-delay-400  { animation-delay: 0.4s; }
+.animation-delay-500  { animation-delay: 0.5s; }
+.animation-delay-600  { animation-delay: 0.6s; }
+.animation-delay-700  { animation-delay: 0.7s; }
+.animation-delay-800  { animation-delay: 0.8s; }
+.animation-delay-1000 { animation-delay: 1.0s; }
 
 /* Sidebar logo wave animation */
 @keyframes letterWave {

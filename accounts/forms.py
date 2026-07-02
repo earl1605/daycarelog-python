@@ -10,9 +10,19 @@ class ParentRegistrationForm(forms.Form):
     """Public self-registration. Always creates a PARENT account -
     never STAFF or ADMIN, regardless of any submitted data."""
 
-    first_name = forms.CharField(max_length=150)
-    last_name = forms.CharField(max_length=150)
-    middle_name = forms.CharField(max_length=150, required=False)
+    first_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "given-name"}),
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "family-name"}),
+    )
+    middle_name = forms.CharField(
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "additional-name"}),
+    )
     suffix = forms.ChoiceField(choices=User.Suffix.choices, required=False)
     email = forms.EmailField()
     contact_number = forms.CharField(max_length=20, required=False)

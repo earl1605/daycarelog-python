@@ -8,6 +8,10 @@ from django.urls import reverse_lazy
 from .forms import DaycareLoginForm, ParentRegistrationForm
 
 
+def landing(request):
+    return render(request, "landing.html")
+
+
 def register(request):
     if request.user.is_authenticated:
         return redirect("accounts:redirect_after_login")
