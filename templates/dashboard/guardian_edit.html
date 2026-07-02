@@ -1,0 +1,20 @@
+{% extends "layouts/app.html" %}
+{% block title %}Edit Guardian - DaycareLog{% endblock %}
+{% block content %}
+<div class="space-y-6 max-w-xl">
+    <div class="flex items-center justify-between">
+        <h1 class="text-[22px] font-bold text-gray-900">Edit {{ guardian.user.get_full_name }}</h1>
+        <a href="{% url 'dashboard:guardians_list' %}" class="text-sm text-gray-400 hover:text-primary-600 transition-colors duration-150">&larr; Back to Guardians</a>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
+        <form method="post" novalidate class="form-styled">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
