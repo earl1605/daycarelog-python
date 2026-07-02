@@ -31,7 +31,7 @@
     {% if messages %}
         <div class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-xs">
             {% for message in messages %}
-                <div class="px-4 py-3 rounded-xl shadow-lg text-sm font-medium
+                <div class="toast-message transition-opacity duration-300 px-4 py-3 rounded-xl shadow-lg text-sm font-medium
                     {% if message.tags == 'success' %}bg-primary-600 text-white
                     {% elif message.tags == 'error' %}bg-red-600 text-white
                     {% else %}bg-gray-800 text-white{% endif %}">
@@ -39,6 +39,14 @@
                 </div>
             {% endfor %}
         </div>
+        <script>
+            document.querySelectorAll('.toast-message').forEach(function (toast) {
+                setTimeout(function () {
+                    toast.style.opacity = '0';
+                    setTimeout(function () { toast.remove(); }, 300);
+                }, 2000);
+            });
+        </script>
     {% endif %}
     {% block body %}{% endblock %}
 </body>
