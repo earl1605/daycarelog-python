@@ -35,23 +35,23 @@
                 <div>
                     <p class="px-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Main</p>
                     <div class="space-y-0.5">
-                        <a href="{{ url_home }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_home %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_home }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_home %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "home" cls="shrink-0 w-[18px] h-[18px]" %}
                             <span class="flex-1 truncate">Dashboard</span>
                         </a>
-                        <a href="{{ url_children }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_children %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_children }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_children %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "users" %}
                             <span class="flex-1 truncate">Children</span>
                         </a>
-                        <a href="{{ url_attendance }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_attendance %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_attendance }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_attendance %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "clipboard" %}
                             <span class="flex-1 truncate">Attendance</span>
                         </a>
-                        <a href="{{ url_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_health %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_health %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "heart" %}
                             <span class="flex-1 truncate">Health Records</span>
                         </a>
-                        <a href="{{ url_guardians }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_guardians %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_guardians }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_guardians %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "users" %}
                             <span class="flex-1 truncate">Guardians</span>
                         </a>
@@ -62,11 +62,11 @@
                     <div class="h-px bg-gray-200/70 mb-5 -mt-2.5 mx-1"></div>
                     <p class="px-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Management</p>
                     <div class="space-y-0.5">
-                        <a href="{{ url_reports }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_reports %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_reports }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_reports %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "bar-chart" %}
                             <span class="flex-1 truncate">Reports</span>
                         </a>
-                        <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "settings" %}
                             <span class="flex-1 truncate">Settings</span>
                             {% icon "chevron-down" cls="shrink-0 w-3.5 h-3.5 ml-auto text-gray-400" %}
@@ -79,7 +79,7 @@
                         <div class="h-px bg-gray-200/70 mb-5 -mt-2.5 mx-1"></div>
                         <p class="px-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Admin</p>
                         <div class="space-y-0.5">
-                            <a href="{{ url_accounts }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_accounts %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            <a href="{{ url_accounts }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_accounts %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                                 {% icon "users" %}
                                 <span class="flex-1 truncate">Users</span>
                             </a>
@@ -90,19 +90,19 @@
                 <div>
                     <p class="px-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Main</p>
                     <div class="space-y-0.5">
-                        <a href="{{ url_parent }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_parent }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "home" %}
                             <span class="flex-1 truncate">My Dashboard</span>
                         </a>
-                        <a href="{{ url_parent_attendance }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent_attendance %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_parent_attendance }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent_attendance %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "clipboard" %}
                             <span class="flex-1 truncate">Attendance</span>
                         </a>
-                        <a href="{{ url_parent_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent_health %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_parent_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent_health %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "heart" %}
                             <span class="flex-1 truncate">Health Records</span>
                         </a>
-                        <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                        <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "settings" %}
                             <span class="flex-1 truncate">Settings</span>
                         </a>
