@@ -1,5 +1,5 @@
 {% extends "layouts/app.html" %}
-{% load icons %}
+{% load icons static %}
 {% block title %}Parent/Guardian Records - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-6">
@@ -103,4 +103,5 @@
         });
     })();
 </script>
+<script src="{% static 'js/capitalize-name.js' %}"></script>
 {% endblock %}

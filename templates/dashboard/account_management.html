@@ -1,5 +1,5 @@
 {% extends "layouts/app.html" %}
-{% load icons %}
+{% load icons static %}
 {% block title %}Account Management - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-6">
@@ -9,7 +9,7 @@
         <h2 class="text-[17px] font-bold text-gray-900 mb-1 flex items-center gap-2">
             {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Create Staff / Admin Account
         </h2>
-        <p class="text-sm text-gray-500 mb-4">Parent/Guardian accounts can only be created through public self-registration.</p>
+        <p class="text-sm text-gray-500 mb-4">Parent/Guardian accounts are created from the Guardians page instead, not here.</p>
         <form method="post" novalidate class="form-styled max-w-md">
             {% csrf_token %}
             {{ form.as_p }}
@@ -52,4 +52,5 @@
         </table>
     </div>
 </div>
+<script src="{% static 'js/capitalize-name.js' %}"></script>
 {% endblock %}

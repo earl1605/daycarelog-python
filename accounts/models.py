@@ -22,6 +22,10 @@ class User(AbstractUser):
     contact_number = models.CharField(max_length=20, blank=True)
     middle_name = models.CharField(max_length=150, blank=True)
     suffix = models.CharField(max_length=10, choices=Suffix.choices, blank=True)
+    # Stored as a base64 data URI (resized client-side to ~256px before upload),
+    # not a file path - Vercel's serverless filesystem is ephemeral, so an
+    # ImageField/FileField would lose uploads between deployments.
+    profile_photo = models.TextField(blank=True)
 
     REQUIRED_FIELDS = ["email"]
 

@@ -1,4 +1,5 @@
 {% extends "layouts/app.html" %}
+{% load static %}
 {% block title %}Settings - DaycareLog{% endblock %}
 {% block content %}
 <div class="max-w-4xl mx-auto space-y-6">
@@ -10,10 +11,28 @@
             <h2 class="text-[17px] font-bold text-gray-900">Profile</h2>
 
             <div class="flex flex-col items-center py-2">
-                <div class="w-20 h-20 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-2xl font-bold">
-                    {{ user.first_name|default:user.email|first|upper }}
-                </div>
+                <button type="button" id="photo-trigger"
+                    class="relative group w-20 h-20 rounded-full overflow-hidden ring-4 ring-primary-100 hover:ring-primary-300 transition-all">
+                    {% if user.profile_photo %}
+                        <img id="photo-preview" src="{{ user.profile_photo }}" alt="Profile" class="w-full h-full object-cover">
+                    {% else %}
+                        <div id="photo-preview" class="w-full h-full bg-primary-100 text-primary-700 flex items-center justify-center text-2xl font-bold">
+                            {{ user.first_name|default:user.email|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="text-white text-xs font-medium">Change</span>
+                    </div>
+                </button>
+                <p class="text-xs text-gray-400 mt-1.5">Click to change photo</p>
+                <input type="file" id="photo-input" accept="image/*" class="hidden">
             </div>
+
+            <form method="post" id="photo-form" class="hidden">
+                {% csrf_token %}
+                <input type="hidden" name="profile_photo" id="photo-data">
+                <button type="submit" name="save_photo" value="1"></button>
+            </form>
 
             <form method="post" novalidate class="form-styled space-y-3">
                 {% csrf_token %}
@@ -53,4 +72,51 @@
 
     </div>
 </div>
+
+<script>
+    (function () {
+        var trigger = document.getElementById('photo-trigger');
+        var fileInput = document.getElementById('photo-input');
+        var dataInput = document.getElementById('photo-data');
+        var form = document.getElementById('photo-form');
+        var preview = document.getElementById('photo-preview');
+
+        trigger.addEventListener('click', function () { fileInput.click(); });
+
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files && fileInput.files[0];
+            if (!file) return;
+
+            var img = new Image();
+            var url = URL.createObjectURL(file);
+            img.onload = function () {
+                var maxSize = 256;
+                var scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+                var canvas = document.createElement('canvas');
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+
+                var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                dataInput.value = dataUrl;
+
+                if (preview.tagName === 'IMG') {
+                    preview.src = dataUrl;
+                } else {
+                    var newImg = document.createElement('img');
+                    newImg.id = 'photo-preview';
+                    newImg.alt = 'Profile';
+                    newImg.className = 'w-full h-full object-cover';
+                    newImg.src = dataUrl;
+                    preview.replaceWith(newImg);
+                }
+
+                form.submit();
+            };
+            img.src = url;
+        });
+    })();
+</script>
+<script src="{% static 'js/capitalize-name.js' %}"></script>
 {% endblock %}

@@ -68,8 +68,12 @@ class StaffAccountForm(forms.Form):
     existing STAFF/ADMIN users to create new STAFF or ADMIN accounts.
     Never exposed on the public registration page."""
 
-    first_name = forms.CharField(max_length=150)
-    last_name = forms.CharField(max_length=150)
+    first_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={"class": "capitalize-name"})
+    )
+    last_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={"class": "capitalize-name"})
+    )
     email = forms.EmailField()
     role = forms.ChoiceField(
         choices=[(User.Role.STAFF, User.Role.STAFF.label), (User.Role.ADMIN, User.Role.ADMIN.label)]
@@ -112,3 +116,14 @@ class ProfileForm(forms.ModelForm):
             "last_name": forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "family-name"}),
             "middle_name": forms.TextInput(attrs={"class": "capitalize-name", "autocomplete": "additional-name"}),
         }
+
+
+class ProfilePhotoForm(forms.ModelForm):
+    """Used from the Settings page to update just the profile photo - kept
+    separate from ProfileForm so submitting the name fields never risks
+    clobbering an existing photo (or vice versa)."""
+
+    class Meta:
+        model = User
+        fields = ["profile_photo"]
+        widgets = {"profile_photo": forms.HiddenInput()}

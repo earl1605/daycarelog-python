@@ -113,9 +113,13 @@
 
         <div class="p-3 border-t border-gray-200/70">
             <div class="flex items-center gap-2.5 px-1 py-2 mb-1">
-                <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-xs flex-shrink-0">
-                    {{ user.first_name|default:user.email|first|upper }}
-                </div>
+                {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo }}" alt="Profile" class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-primary-100">
+                {% else %}
+                    <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-xs flex-shrink-0">
+                        {{ user.first_name|default:user.email|first|upper }}
+                    </div>
+                {% endif %}
                 <div class="flex-1 min-w-0">
                     <p class="text-[13px] font-medium text-gray-900 truncate">{{ user.get_full_name|default:user.email }}</p>
                     <p class="text-[11px] text-gray-400 capitalize">{{ user.get_role_display }}</p>

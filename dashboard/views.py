@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from accounts.decorators import admin_required, staff_or_admin_required
-from accounts.forms import ProfileForm, StaffAccountForm
+from accounts.forms import ProfileForm, ProfilePhotoForm, StaffAccountForm
 from dashboard.forms import (
     AttendanceForm,
     ChildForm,
@@ -323,25 +323,30 @@ def reports_export_csv(request):
 
 @login_required
 def settings_view(request):
+    profile_form = ProfileForm(instance=request.user)
+    password_form = PasswordChangeForm(request.user)
+
     if request.method == "POST":
-        if "save_profile" in request.POST:
+        if "save_photo" in request.POST:
+            photo_form = ProfilePhotoForm(request.POST, instance=request.user)
+            if photo_form.is_valid():
+                photo_form.save()
+                messages.success(request, "Profile photo updated.")
+                return redirect("dashboard:settings")
+            messages.error(request, "Could not update the profile photo.")
+        elif "save_profile" in request.POST:
             profile_form = ProfileForm(request.POST, instance=request.user)
-            password_form = PasswordChangeForm(request.user)
             if profile_form.is_valid():
                 profile_form.save()
                 messages.success(request, "Profile updated.")
                 return redirect("dashboard:settings")
         else:
-            profile_form = ProfileForm(instance=request.user)
             password_form = PasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
                 user = password_form.save()
                 update_session_auth_hash(request, user)
                 messages.success(request, "Password changed.")
                 return redirect("dashboard:settings")
-    else:
-        profile_form = ProfileForm(instance=request.user)
-        password_form = PasswordChangeForm(request.user)
 
     return render(
         request, "dashboard/settings.html", {"profile_form": profile_form, "password_form": password_form}
