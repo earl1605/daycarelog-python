@@ -1,41 +1,98 @@
 {% extends "layouts/app.html" %}
+{% load icons %}
 {% block title %}Enrolled Children - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-6">
-    <h1 class="text-2xl font-extrabold text-gray-900">Enrolled Children</h1>
+    <div class="flex items-center justify-between">
+        <h1 class="text-[22px] font-bold text-gray-900">Children</h1>
+    </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="text-left text-gray-500 border-b border-gray-100">
-                    <th class="py-2 pr-4 font-medium">Name</th>
-                    <th class="py-2 pr-4 font-medium">Date of Birth</th>
-                    <th class="py-2 pr-4 font-medium">Sex</th>
-                    <th class="py-2 pr-4 font-medium">Status</th>
-                    <th class="py-2 pr-4 font-medium">Guardian</th>
+    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
+        <h2 class="text-[17px] font-bold text-gray-900 mb-4 flex items-center gap-2">
+            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Add a Child
+        </h2>
+        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
+                Add Child
+            </button>
+        </form>
+    </div>
+
+    <input type="text" id="children-search" placeholder="Search by name…"
+        class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400">
+
+    <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
+        <table class="w-full text-sm" id="children-table">
+            <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium">Name</th>
+                    <th class="text-left px-4 py-3 font-medium">Date of Birth</th>
+                    <th class="text-left px-4 py-3 font-medium">Sex</th>
+                    <th class="text-left px-4 py-3 font-medium">Status</th>
+                    <th class="text-left px-4 py-3 font-medium">Guardian</th>
+                    <th class="text-left px-4 py-3 font-medium">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-100">
                 {% for child in children %}
-                    <tr class="border-b border-gray-50 last:border-0">
-                        <td class="py-2.5 pr-4 font-medium text-gray-900">{{ child.first_name }} {{ child.last_name }}</td>
-                        <td class="py-2.5 pr-4 text-gray-500">{{ child.date_of_birth }}</td>
-                        <td class="py-2.5 pr-4 text-gray-500">{{ child.get_sex_display }}</td>
-                        <td class="py-2.5 pr-4">
+                    <tr class="hover:bg-gray-50/60 transition-colors duration-150" data-name="{{ child.first_name }} {{ child.last_name }}">
+                        <td class="px-4 py-3 font-medium text-gray-900">{{ child.first_name }} {{ child.last_name }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ child.date_of_birth }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ child.get_sex_display }}</td>
+                        <td class="px-4 py-3">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {% if child.status == 'ENROLLED' %}bg-green-100 text-green-800
-                                {% elif child.status == 'PENDING' %}bg-yellow-100 text-yellow-800
-                                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {% if child.status == 'ENROLLED' %}bg-green-50 text-green-700
+                                {% elif child.status == 'PENDING' %}bg-amber-50 text-amber-600
+                                {% else %}bg-gray-100 text-gray-500{% endif %}">
                                 {{ child.get_status_display }}
                             </span>
                         </td>
-                        <td class="py-2.5 pr-4 text-gray-500">{{ child.guardian }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ child.guardian }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-wrap gap-1.5">
+                                <a href="{% url 'dashboard:child_edit' child.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
+                                    {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit
+                                </a>
+                                <form method="post" action="{% url 'dashboard:child_delete' child.pk %}" onsubmit="return confirm('Remove {{ child.first_name }} {{ child.last_name }}? This will also delete their health and attendance records.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors duration-150">
+                                        {% icon "trash" cls="w-[13px] h-[13px]" %} Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="5" class="py-4 text-center text-gray-400">No children enrolled yet.</td></tr>
+                    <tr><td colspan="6" class="text-center py-16">
+                        <span class="inline-flex w-12 h-12 rounded-full bg-gray-100 text-gray-400 items-center justify-center mb-3">
+                            {% icon "users" cls="w-[22px] h-[22px]" %}
+                        </span>
+                        <p class="font-medium text-gray-500">No children enrolled yet.</p>
+                    </td></tr>
                 {% endfor %}
             </tbody>
         </table>
+        <p id="children-no-results" class="hidden text-center py-10 text-gray-400 text-sm">No children match your search.</p>
     </div>
 </div>
+
+<script>
+    (function () {
+        var input = document.getElementById('children-search');
+        var rows = document.querySelectorAll('#children-table tbody tr[data-name]');
+        var empty = document.getElementById('children-no-results');
+        input.addEventListener('input', function () {
+            var term = input.value.trim().toLowerCase();
+            var visible = 0;
+            rows.forEach(function (row) {
+                var match = row.dataset.name.toLowerCase().includes(term);
+                row.classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+            empty.classList.toggle('hidden', !(term && visible === 0));
+        });
+    })();
+</script>
 {% endblock %}

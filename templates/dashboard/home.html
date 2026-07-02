@@ -1,49 +1,58 @@
 {% extends "layouts/app.html" %}
+{% load icons %}
 {% block title %}Dashboard - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-8">
     <div>
-        <h1 class="text-2xl font-extrabold text-gray-900">
+        <h1 class="text-[22px] font-bold text-gray-900">
             Good {{ greeting }}, {{ user.first_name|default:user.email }} 👋
         </h1>
         <p class="text-gray-500 text-sm mt-1">{% now "l, F j, Y" %}</p>
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-primary-50 text-primary-600">👦</div>
-            <div>
-                <p class="text-sm text-gray-500">Active Children</p>
-                <p class="text-2xl font-bold text-gray-900">{{ active_count }}</p>
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-primary-50 text-primary-600">
+                {% icon "users" cls="w-5 h-5" %}
+            </div>
+            <div class="min-w-0">
+                <p class="text-[12px] font-medium text-gray-500 uppercase tracking-wide truncate">Active Children</p>
+                <p class="text-[28px] leading-tight font-bold text-gray-900">{{ active_count }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-blue-50 text-blue-600">✅</div>
-            <div>
-                <p class="text-sm text-gray-500">Present Today</p>
-                <p class="text-2xl font-bold text-gray-900">{{ present_today }}</p>
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
+                {% icon "check" cls="w-5 h-5" %}
+            </div>
+            <div class="min-w-0">
+                <p class="text-[12px] font-medium text-gray-500 uppercase tracking-wide truncate">Present Today</p>
+                <p class="text-[28px] leading-tight font-bold text-gray-900">{{ present_today }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-purple-50 text-purple-600">📋</div>
-            <div>
-                <p class="text-sm text-gray-500">Total Enrolled</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_children }}</p>
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-violet-50 text-violet-600">
+                {% icon "clipboard" cls="w-5 h-5" %}
+            </div>
+            <div class="min-w-0">
+                <p class="text-[12px] font-medium text-gray-500 uppercase tracking-wide truncate">Total Enrolled</p>
+                <p class="text-[28px] leading-tight font-bold text-gray-900">{{ total_children }}</p>
             </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-orange-50 text-orange-600">📅</div>
-            <div>
-                <p class="text-sm text-gray-500">Attendance Rate</p>
-                <p class="text-2xl font-bold text-gray-900">{% if attendance_rate is not None %}{{ attendance_rate }}%{% else %}—{% endif %}</p>
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-amber-50 text-amber-600">
+                {% icon "calendar" cls="w-5 h-5" %}
+            </div>
+            <div class="min-w-0">
+                <p class="text-[12px] font-medium text-gray-500 uppercase tracking-wide truncate">Attendance Rate</p>
+                <p class="text-[28px] leading-tight font-bold text-gray-900">{% if attendance_rate is not None %}{{ attendance_rate }}%{% else %}—{% endif %}</p>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="font-bold text-gray-900">Weekly Attendance</h2>
-            <a href="{% url 'dashboard:attendance_list' %}" class="text-primary-600 text-sm font-medium hover:underline">View all &rarr;</a>
+    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-[17px] font-bold text-gray-900">Weekly Attendance</h2>
+            <a href="{% url 'dashboard:attendance_list' %}" class="text-primary-700 text-sm font-medium hover:underline">View all &rarr;</a>
         </div>
         <div style="height: 220px;">
             <canvas id="attendanceChart"></canvas>
@@ -51,23 +60,31 @@
     </div>
 
     <div>
-        <h2 class="font-bold text-gray-900 mb-3">Quick Actions</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <a href="{% url 'dashboard:children_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
-                <span class="text-2xl">👦</span>
-                <span class="text-sm font-medium text-gray-700">Children</span>
+        <h2 class="text-[17px] font-bold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <a href="{% url 'dashboard:children_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "users" cls="w-[18px] h-[18px]" %}
+                </span>
+                <span class="text-[13px] font-medium text-gray-700">Children</span>
             </a>
-            <a href="{% url 'dashboard:attendance_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
-                <span class="text-2xl">📋</span>
-                <span class="text-sm font-medium text-gray-700">Attendance</span>
+            <a href="{% url 'dashboard:attendance_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "clipboard" cls="w-[18px] h-[18px]" %}
+                </span>
+                <span class="text-[13px] font-medium text-gray-700">Attendance</span>
             </a>
-            <a href="{% url 'dashboard:health_records_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
-                <span class="text-2xl">❤️</span>
-                <span class="text-sm font-medium text-gray-700">Health Records</span>
+            <a href="{% url 'dashboard:health_records_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "heart" cls="w-[18px] h-[18px]" %}
+                </span>
+                <span class="text-[13px] font-medium text-gray-700">Health Records</span>
             </a>
-            <a href="{% url 'dashboard:guardians_list' %}" class="feature-card bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col items-center gap-2 text-center hover:border-primary-200">
-                <span class="text-2xl">👪</span>
-                <span class="text-sm font-medium text-gray-700">Guardians</span>
+            <a href="{% url 'dashboard:guardians_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "users" cls="w-[18px] h-[18px]" %}
+                </span>
+                <span class="text-[13px] font-medium text-gray-700">Guardians</span>
             </a>
         </div>
     </div>
@@ -89,7 +106,7 @@
                 labels: labels,
                 datasets: [
                     { label: 'Present', data: present, backgroundColor: '#16a34a', borderRadius: 4, maxBarThickness: 28 },
-                    { label: 'Absent', data: absent, backgroundColor: '#fca5a5', borderRadius: 4, maxBarThickness: 28 },
+                    { label: 'Absent', data: absent, backgroundColor: '#E5E7EB', borderRadius: 4, maxBarThickness: 28 },
                 ],
             },
             options: {
@@ -97,11 +114,11 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 12 } } },
+                    x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 12 } } },
                     y: {
                         beginAtZero: true,
-                        ticks: { precision: 0, color: '#6b7280', font: { size: 12 } },
-                        grid: { color: '#f3f4f6' },
+                        ticks: { precision: 0, color: '#9CA3AF', font: { size: 12 } },
+                        grid: { color: '#F0F0EE' },
                     },
                 },
             },

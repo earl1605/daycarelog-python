@@ -1,36 +1,84 @@
 {% extends "layouts/app.html" %}
+{% load icons %}
 {% block title %}Attendance - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-6">
-    <h1 class="text-2xl font-extrabold text-gray-900">Attendance</h1>
+    <h1 class="text-[22px] font-bold text-gray-900">Attendance</h1>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-x-auto">
+    <div class="flex gap-4 flex-wrap">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-5 py-3 flex items-center gap-3">
+            <p class="text-2xl font-bold text-green-600">{{ present_count }}</p>
+            <p class="text-sm text-gray-500">Present</p>
+        </div>
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-5 py-3 flex items-center gap-3">
+            <p class="text-2xl font-bold text-red-500">{{ absent_count }}</p>
+            <p class="text-sm text-gray-500">Absent</p>
+        </div>
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-5 py-3 flex items-center gap-3">
+            <p class="text-2xl font-bold text-gray-700">{{ total_count }}</p>
+            <p class="text-sm text-gray-500">Total</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
+        <h2 class="text-[17px] font-bold text-gray-900 mb-4 flex items-center gap-2">
+            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Record Attendance
+        </h2>
+        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
+                Record Attendance
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
         <table class="w-full text-sm">
-            <thead>
-                <tr class="text-left text-gray-500 border-b border-gray-100">
-                    <th class="py-2 pr-4 font-medium">Child</th>
-                    <th class="py-2 pr-4 font-medium">Date</th>
-                    <th class="py-2 pr-4 font-medium">Status</th>
-                    <th class="py-2 pr-4 font-medium">Remarks</th>
+            <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium">Child</th>
+                    <th class="text-left px-4 py-3 font-medium">Date</th>
+                    <th class="text-left px-4 py-3 font-medium">Status</th>
+                    <th class="text-left px-4 py-3 font-medium">Remarks</th>
+                    <th class="text-left px-4 py-3 font-medium">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-100">
                 {% for record in records %}
-                    <tr class="border-b border-gray-50 last:border-0">
-                        <td class="py-2.5 pr-4 font-medium text-gray-900">{{ record.child }}</td>
-                        <td class="py-2.5 pr-4 text-gray-500">{{ record.date }}</td>
-                        <td class="py-2.5 pr-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {% if record.status == 'PRESENT' %}bg-green-100 text-green-800
-                                {% elif record.status == 'LATE' %}bg-orange-100 text-orange-800
-                                {% else %}bg-red-100 text-red-800{% endif %}">
+                    <tr class="hover:bg-gray-50/60 transition-colors duration-150">
+                        <td class="px-4 py-3 font-medium text-gray-900">{{ record.child }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.date }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium capitalize
+                                {% if record.status == 'PRESENT' %}bg-green-100 text-green-700
+                                {% elif record.status == 'LATE' %}bg-amber-100 text-amber-600
+                                {% else %}bg-red-100 text-red-600{% endif %}">
                                 {{ record.get_status_display }}
                             </span>
                         </td>
-                        <td class="py-2.5 pr-4 text-gray-500">{{ record.remarks|default:"—" }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.remarks|default:"—" }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-wrap gap-1.5">
+                                <a href="{% url 'dashboard:attendance_edit' record.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
+                                    {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit
+                                </a>
+                                <form method="post" action="{% url 'dashboard:attendance_delete' record.pk %}" onsubmit="return confirm('Remove this attendance record?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors duration-150">
+                                        {% icon "trash" cls="w-[13px] h-[13px]" %} Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="4" class="py-4 text-center text-gray-400">No attendance records yet.</td></tr>
+                    <tr><td colspan="5" class="text-center py-16">
+                        <span class="inline-flex w-12 h-12 rounded-full bg-gray-100 text-gray-400 items-center justify-center mb-3">
+                            {% icon "clipboard" cls="w-[22px] h-[22px]" %}
+                        </span>
+                        <p class="font-medium text-gray-500">No attendance records yet.</p>
+                    </td></tr>
                 {% endfor %}
             </tbody>
         </table>
