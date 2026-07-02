@@ -41,17 +41,17 @@
                             {% icon "users" %}
                             <span class="flex-1 truncate">Children</span>
                         </a>
-                        <a href="{{ url_guardians }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_guardians %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
-                            {% icon "users" %}
-                            <span class="flex-1 truncate">Guardians</span>
+                        <a href="{{ url_attendance }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_attendance %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "clipboard" %}
+                            <span class="flex-1 truncate">Attendance</span>
                         </a>
                         <a href="{{ url_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_health %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "heart" %}
                             <span class="flex-1 truncate">Health Records</span>
                         </a>
-                        <a href="{{ url_attendance }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_attendance %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
-                            {% icon "clipboard" %}
-                            <span class="flex-1 truncate">Attendance</span>
+                        <a href="{{ url_guardians }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_guardians %}bg-primary-100/70 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "users" %}
+                            <span class="flex-1 truncate">Guardians</span>
                         </a>
                     </div>
                 </div>
