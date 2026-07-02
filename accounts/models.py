@@ -5,7 +5,7 @@ from django.db import models
 class User(AbstractUser):
     class Role(models.TextChoices):
         PARENT = "PARENT", "Parent/Guardian"
-        STAFF = "STAFF", "Staff"
+        STAFF = "STAFF", "Staff/BHW"
         ADMIN = "ADMIN", "Admin"
 
     class Suffix(models.TextChoices):

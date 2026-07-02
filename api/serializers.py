@@ -20,8 +20,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.Serializer):
-    """Public self-registration. Always creates a PARENT account -
-    never STAFF or ADMIN, regardless of any submitted data."""
+    """Public self-registration. Always creates a STAFF account - never ADMIN,
+    and never PARENT, regardless of any submitted data. Parent/Guardian
+    accounts are created by STAFF/ADMIN from the Guardians page instead."""
 
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
@@ -53,7 +54,7 @@ class RegisterSerializer(serializers.Serializer):
             middle_name=validated_data.get("middle_name", ""),
             suffix=validated_data.get("suffix", ""),
             contact_number=validated_data.get("contact_number", ""),
-            role=User.Role.PARENT,
+            role=User.Role.STAFF,
         )
         user.set_password(validated_data["password"])
         user.save()
@@ -67,7 +68,9 @@ class StaffAccountSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
     email = serializers.EmailField()
-    role = serializers.ChoiceField(choices=[(User.Role.STAFF, "Staff"), (User.Role.ADMIN, "Admin")])
+    role = serializers.ChoiceField(
+        choices=[(User.Role.STAFF, User.Role.STAFF.label), (User.Role.ADMIN, User.Role.ADMIN.label)]
+    )
     password = serializers.CharField(write_only=True, min_length=8)
 
     def validate_email(self, value):

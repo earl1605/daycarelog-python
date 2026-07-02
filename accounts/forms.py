@@ -6,9 +6,12 @@ from django.core.exceptions import ValidationError
 User = get_user_model()
 
 
-class ParentRegistrationForm(forms.Form):
-    """Public self-registration. Always creates a PARENT account -
-    never STAFF or ADMIN, regardless of any submitted data."""
+class PublicRegistrationForm(forms.Form):
+    """Public self-registration. Always creates a STAFF account - never ADMIN,
+    and never PARENT, regardless of any submitted data. Parent/Guardian
+    accounts can only be created by an existing STAFF/ADMIN from the
+    Guardians page (see GuardianAccountCreateForm), since a parent claiming
+    a specific child needs staff verification, not open self-service."""
 
     first_name = forms.CharField(
         max_length=150,
@@ -53,7 +56,7 @@ class ParentRegistrationForm(forms.Form):
             middle_name=self.cleaned_data.get("middle_name", ""),
             suffix=self.cleaned_data.get("suffix", ""),
             contact_number=self.cleaned_data.get("contact_number", ""),
-            role=User.Role.PARENT,
+            role=User.Role.STAFF,
         )
         user.set_password(self.cleaned_data["password"])
         user.save()
@@ -68,7 +71,9 @@ class StaffAccountForm(forms.Form):
     first_name = forms.CharField(max_length=150)
     last_name = forms.CharField(max_length=150)
     email = forms.EmailField()
-    role = forms.ChoiceField(choices=[(User.Role.STAFF, "Staff"), (User.Role.ADMIN, "Admin")])
+    role = forms.ChoiceField(
+        choices=[(User.Role.STAFF, User.Role.STAFF.label), (User.Role.ADMIN, User.Role.ADMIN.label)]
+    )
     password = forms.CharField(widget=forms.PasswordInput, min_length=8)
 
     def clean_email(self):

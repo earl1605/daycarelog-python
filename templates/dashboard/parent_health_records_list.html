@@ -1,0 +1,42 @@
+{% extends "layouts/app.html" %}
+{% load icons %}
+{% block title %}Health Records - DaycareLog{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-[22px] font-bold text-gray-900">Health Records</h1>
+
+    <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
+        <table class="w-full text-sm min-w-[640px]">
+            <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium">Child</th>
+                    <th class="text-left px-4 py-3 font-medium">Date</th>
+                    <th class="text-left px-4 py-3 font-medium">Height (cm)</th>
+                    <th class="text-left px-4 py-3 font-medium">Weight (kg)</th>
+                    <th class="text-left px-4 py-3 font-medium">Temp (&deg;C)</th>
+                    <th class="text-left px-4 py-3 font-medium">Allergies</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for record in records %}
+                    <tr class="hover:bg-gray-50/60 transition-colors duration-150">
+                        <td class="px-4 py-3 font-medium text-gray-900">{{ record.child }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.record_date }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.height_cm|default:"—" }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.weight_kg|default:"—" }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.temperature_c|default:"—" }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.allergies|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center py-16">
+                        <span class="inline-flex w-12 h-12 rounded-full bg-gray-100 text-gray-400 items-center justify-center mb-3">
+                            {% icon "heart" cls="w-[22px] h-[22px]" %}
+                        </span>
+                        <p class="font-medium text-gray-500">No health records yet.</p>
+                    </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

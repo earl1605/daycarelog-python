@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 
+from accounts.utils import generate_temp_password
 from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord
 
 User = get_user_model()
@@ -35,6 +37,57 @@ class GuardianProfileForm(forms.ModelForm):
         self.fields["user"].queryset = User.objects.filter(available).order_by(
             "first_name", "last_name"
         )
+
+
+class GuardianAccountCreateForm(forms.Form):
+    """Used by STAFF/ADMIN on the Guardians page to create a brand-new
+    Parent/Guardian account together with its GuardianProfile in one step -
+    a Parent/Guardian account can never come from public self-registration,
+    since claiming a specific child needs staff verification. A temporary
+    password is generated and returned by save() for staff to share once."""
+
+    first_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={"class": "capitalize-name"})
+    )
+    last_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={"class": "capitalize-name"})
+    )
+    middle_name = forms.CharField(
+        max_length=150, required=False, widget=forms.TextInput(attrs={"class": "capitalize-name"})
+    )
+    suffix = forms.ChoiceField(choices=User.Suffix.choices, required=False)
+    email = forms.EmailField()
+    contact_number = forms.CharField(max_length=20, required=False)
+    address = forms.CharField(max_length=255, required=False)
+    relationship_to_child = forms.CharField(max_length=50, required=False)
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].lower().strip()
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError("An account with this email already exists.")
+        return email
+
+    def save(self):
+        email = self.cleaned_data["email"]
+        temp_password = generate_temp_password()
+        user = User(
+            username=email,
+            email=email,
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
+            middle_name=self.cleaned_data.get("middle_name", ""),
+            suffix=self.cleaned_data.get("suffix", ""),
+            contact_number=self.cleaned_data.get("contact_number", ""),
+            role=User.Role.PARENT,
+        )
+        user.set_password(temp_password)
+        user.save()
+        guardian_profile = GuardianProfile.objects.create(
+            user=user,
+            address=self.cleaned_data.get("address", ""),
+            relationship_to_child=self.cleaned_data.get("relationship_to_child", ""),
+        )
+        return guardian_profile, temp_password
 
 
 class HealthRecordForm(forms.ModelForm):

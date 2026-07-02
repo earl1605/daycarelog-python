@@ -107,15 +107,27 @@ class GuardianProfileViewSet(viewsets.ModelViewSet):
 
 
 class HealthRecordViewSet(viewsets.ModelViewSet):
-    queryset = HealthRecord.objects.select_related("child", "recorded_by")
     serializer_class = HealthRecordSerializer
-    permission_classes = [IsStaffOrAdmin]
+    permission_classes = [IsStaffOrAdminOrReadOnlyOwnChild]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = HealthRecord.objects.select_related("child", "recorded_by")
+        if user.is_staff_role:
+            return queryset
+        return queryset.filter(child__guardian__user=user)
 
     def perform_create(self, serializer):
         serializer.save(recorded_by=self.request.user)
 
 
 class AttendanceViewSet(viewsets.ModelViewSet):
-    queryset = Attendance.objects.select_related("child")
     serializer_class = AttendanceSerializer
-    permission_classes = [IsStaffOrAdmin]
+    permission_classes = [IsStaffOrAdminOrReadOnlyOwnChild]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Attendance.objects.select_related("child")
+        if user.is_staff_role:
+            return queryset
+        return queryset.filter(child__guardian__user=user)

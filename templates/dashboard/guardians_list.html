@@ -5,16 +5,32 @@
 <div class="space-y-6">
     <h1 class="text-[22px] font-bold text-gray-900">Guardians</h1>
 
+    {% if created_guardian %}
+        <div class="bg-white rounded-xl border border-primary-200 p-6">
+            <div class="flex items-center gap-2 mb-1">
+                {% icon "check" cls="w-[18px] h-[18px] text-primary-600" %}
+                <h2 class="text-[17px] font-bold text-gray-900">Guardian account created</h2>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">
+                For <span class="font-semibold text-gray-700">{{ created_guardian.name }}</span> ({{ created_guardian.email }}).
+                This temporary password is shown only once — copy it now and share it securely.
+            </p>
+            <code class="block bg-[#FAFAFA] border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-800 select-all">
+                {{ created_guardian.password }}
+            </code>
+        </div>
+    {% endif %}
+
     <div class="bg-white rounded-xl border border-gray-200/70 p-6">
         <h2 class="text-[17px] font-bold text-gray-900 mb-1 flex items-center gap-2">
-            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Add a Guardian Profile
+            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Create a Guardian Account
         </h2>
-        <p class="text-sm text-gray-500 mb-4">Only parent accounts that don't already have a guardian profile are shown below.</p>
-        <form method="post" novalidate class="form-styled max-w-md">
+        <p class="text-sm text-gray-500 mb-4">Creates a new Parent/Guardian login and generates a temporary password to share with them. Public self-registration can never create a Parent/Guardian account.</p>
+        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-4">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
-                Add Guardian Profile
+            <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
+                Create Guardian Account
             </button>
         </form>
     </div>

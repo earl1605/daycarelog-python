@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
-from .forms import DaycareLoginForm, ParentRegistrationForm
+from .forms import DaycareLoginForm, PublicRegistrationForm
 
 
 def landing(request):
@@ -16,13 +16,13 @@ def register(request):
         return redirect("accounts:redirect_after_login")
 
     if request.method == "POST":
-        form = ParentRegistrationForm(request.POST)
+        form = PublicRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, "Account created! Please sign in.")
             return redirect("accounts:login")
     else:
-        form = ParentRegistrationForm()
+        form = PublicRegistrationForm()
 
     return render(request, "accounts/register.html", {"form": form})
 

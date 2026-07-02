@@ -13,7 +13,13 @@ from django.views.decorators.http import require_POST
 
 from accounts.decorators import admin_required, staff_or_admin_required
 from accounts.forms import ProfileForm, StaffAccountForm
-from dashboard.forms import AttendanceForm, ChildForm, GuardianProfileForm, HealthRecordForm
+from dashboard.forms import (
+    AttendanceForm,
+    ChildForm,
+    GuardianAccountCreateForm,
+    GuardianProfileForm,
+    HealthRecordForm,
+)
 from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord
 
 User = get_user_model()
@@ -119,16 +125,25 @@ def child_delete(request, pk):
 
 @staff_or_admin_required
 def guardians_list(request):
+    created_guardian = None
     if request.method == "POST":
-        form = GuardianProfileForm(request.POST)
+        form = GuardianAccountCreateForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Guardian profile added successfully.")
-            return redirect("dashboard:guardians_list")
+            guardian_profile, temp_password = form.save()
+            created_guardian = {
+                "name": guardian_profile.user.get_full_name(),
+                "email": guardian_profile.user.email,
+                "password": temp_password,
+            }
+            form = GuardianAccountCreateForm()
     else:
-        form = GuardianProfileForm()
+        form = GuardianAccountCreateForm()
     guardians = GuardianProfile.objects.select_related("user").all()
-    return render(request, "dashboard/guardians_list.html", {"guardians": guardians, "form": form})
+    return render(
+        request,
+        "dashboard/guardians_list.html",
+        {"guardians": guardians, "form": form, "created_guardian": created_guardian},
+    )
 
 
 @staff_or_admin_required
@@ -337,3 +352,31 @@ def parent_home(request):
         "dashboard/parent_home.html",
         {"guardian_profile": guardian_profile, "children": children},
     )
+
+
+@login_required
+def parent_attendance_list(request):
+    if request.user.is_staff_role:
+        return redirect("dashboard:home")
+    guardian_profile = GuardianProfile.objects.filter(user=request.user).first()
+    records = (
+        Attendance.objects.filter(child__guardian=guardian_profile).select_related("child")
+        if guardian_profile
+        else Attendance.objects.none()
+    )
+    return render(request, "dashboard/parent_attendance_list.html", {"records": records})
+
+
+@login_required
+def parent_health_records_list(request):
+    if request.user.is_staff_role:
+        return redirect("dashboard:home")
+    guardian_profile = GuardianProfile.objects.filter(user=request.user).first()
+    records = (
+        HealthRecord.objects.filter(child__guardian=guardian_profile).select_related(
+            "child", "recorded_by"
+        )
+        if guardian_profile
+        else HealthRecord.objects.none()
+    )
+    return render(request, "dashboard/parent_health_records_list.html", {"records": records})

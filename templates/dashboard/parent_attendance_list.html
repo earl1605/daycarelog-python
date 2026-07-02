@@ -1,0 +1,45 @@
+{% extends "layouts/app.html" %}
+{% load icons %}
+{% block title %}Attendance - DaycareLog{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-[22px] font-bold text-gray-900">Attendance</h1>
+
+    <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                <tr>
+                    <th class="text-left px-4 py-3 font-medium">Child</th>
+                    <th class="text-left px-4 py-3 font-medium">Date</th>
+                    <th class="text-left px-4 py-3 font-medium">Status</th>
+                    <th class="text-left px-4 py-3 font-medium">Remarks</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for record in records %}
+                    <tr class="hover:bg-gray-50/60 transition-colors duration-150">
+                        <td class="px-4 py-3 font-medium text-gray-900">{{ record.child }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.date }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium capitalize
+                                {% if record.status == 'PRESENT' %}bg-green-100 text-green-700
+                                {% elif record.status == 'LATE' %}bg-amber-100 text-amber-600
+                                {% else %}bg-red-100 text-red-600{% endif %}">
+                                {{ record.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-500">{{ record.remarks|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-center py-16">
+                        <span class="inline-flex w-12 h-12 rounded-full bg-gray-100 text-gray-400 items-center justify-center mb-3">
+                            {% icon "clipboard" cls="w-[22px] h-[22px]" %}
+                        </span>
+                        <p class="font-medium text-gray-500">No attendance records yet.</p>
+                    </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
