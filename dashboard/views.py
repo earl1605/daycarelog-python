@@ -45,7 +45,13 @@ def home(request):
     present_today = Attendance.objects.filter(date=today, status=Attendance.Status.PRESENT).count()
     attendance_rate = round((present_today / active_count) * 100) if active_count else None
 
-    days = [today - timedelta(days=offset) for offset in range(6, -1, -1)]
+    days = []
+    cursor = today
+    while len(days) < 5:
+        if cursor.weekday() < 5:
+            days.append(cursor)
+        cursor -= timedelta(days=1)
+    days.reverse()
     weekly_labels = [day.strftime("%a") for day in days]
     weekly_present = []
     weekly_absent = []

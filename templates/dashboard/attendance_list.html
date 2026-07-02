@@ -1,5 +1,5 @@
 {% extends "layouts/app.html" %}
-{% load icons %}
+{% load icons static %}
 {% block title %}Attendance - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-6">
@@ -84,4 +84,5 @@
         </table>
     </div>
 </div>
+<script src="{% static 'js/weekday-only-date.js' %}"></script>
 {% endblock %}

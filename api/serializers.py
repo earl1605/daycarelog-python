@@ -149,3 +149,10 @@ class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
         fields = ["id", "child", "child_name", "date", "status", "status_display", "remarks"]
+
+    def validate_date(self, value):
+        if value.weekday() >= 5:
+            raise serializers.ValidationError(
+                "Attendance can only be recorded for weekdays (Monday–Friday)."
+            )
+        return value

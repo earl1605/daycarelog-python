@@ -57,8 +57,16 @@ class AttendanceForm(forms.ModelForm):
         model = Attendance
         fields = ["child", "date", "status", "remarks"]
         widgets = {
-            "date": forms.DateInput(attrs={"type": "date"}),
+            "date": forms.DateInput(attrs={"type": "date", "class": "weekday-only-date"}),
         }
+
+    def clean_date(self):
+        value = self.cleaned_data["date"]
+        if value.weekday() >= 5:
+            raise forms.ValidationError(
+                "Attendance can only be recorded for weekdays (Monday–Friday)."
+            )
+        return value
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

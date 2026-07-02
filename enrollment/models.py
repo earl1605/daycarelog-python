@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -76,6 +77,11 @@ class Attendance(models.Model):
     class Meta:
         unique_together = ("child", "date")
         ordering = ["-date"]
+
+    def clean(self):
+        super().clean()
+        if self.date and self.date.weekday() >= 5:
+            raise ValidationError({"date": "Attendance can only be recorded for weekdays (Monday–Friday)."})
 
     def __str__(self):
         return f"{self.child} - {self.date} ({self.status})"
