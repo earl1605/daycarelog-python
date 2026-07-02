@@ -31,7 +31,7 @@
             <form method="post" id="photo-form" class="hidden">
                 {% csrf_token %}
                 <input type="hidden" name="profile_photo" id="photo-data">
-                <button type="submit" name="save_photo" value="1"></button>
+                <input type="hidden" name="save_photo" value="1">
             </form>
 
             <form method="post" novalidate class="form-styled space-y-3">
