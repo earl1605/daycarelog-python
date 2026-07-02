@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -59,12 +60,18 @@ def home(request):
         cursor -= timedelta(days=1)
     days.reverse()
     weekly_labels = [day.strftime("%a") for day in days]
-    weekly_present = []
-    weekly_absent = []
-    for day in days:
-        day_records = Attendance.objects.filter(date=day)
-        weekly_present.append(day_records.filter(status=Attendance.Status.PRESENT).count())
-        weekly_absent.append(day_records.filter(status=Attendance.Status.ABSENT).count())
+
+    window_counts = (
+        Attendance.objects.filter(date__in=days)
+        .values("date", "status")
+        .annotate(count=Count("id"))
+    )
+    counts_by_day = {day: {"PRESENT": 0, "ABSENT": 0} for day in days}
+    for row in window_counts:
+        if row["status"] in counts_by_day[row["date"]]:
+            counts_by_day[row["date"]][row["status"]] = row["count"]
+    weekly_present = [counts_by_day[day]["PRESENT"] for day in days]
+    weekly_absent = [counts_by_day[day]["ABSENT"] for day in days]
 
     if now.hour < 12:
         greeting = "morning"

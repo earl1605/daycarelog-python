@@ -98,6 +98,10 @@ DATABASES = {
         # The Supabase transaction pooler does not support server-side
         # prepared statements, so they must stay disabled.
         'DISABLE_SERVER_SIDE_CURSORS': True,
+        # Reuse the DB connection across requests handled by the same warm
+        # process instead of reconnecting every time - cuts noticeable
+        # latency on serverless platforms like Vercel when an instance is warm.
+        'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=60, cast=int),
     }
 }
 

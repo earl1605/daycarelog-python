@@ -10,6 +10,7 @@ This is a separate course deliverable from the existing Spring Boot + React Dayc
 - Supabase (PostgreSQL) via the Transaction Pooler
 - django-rest-framework (available for future API endpoints)
 - python-decouple for environment configuration
+- Tailwind CSS, compiled to a static file at build time (not the CDN Play script - see "Rebuilding CSS" below)
 
 ## Project Structure
 
@@ -67,10 +68,21 @@ static/               CSS
    python manage.py runserver
    ```
 
-8. Visit `http://127.0.0.1:8000/` - you'll be redirected to the login page. Register a Parent/Guardian account at `/accounts/register/`.
+8. Visit `http://127.0.0.1:8000/` for the landing page. Register a Staff/BHW account at `/accounts/register/` - Parent/Guardian accounts are created by Staff/Admin from the dashboard's Guardians page instead (see Roles below).
+
+## Rebuilding CSS
+
+Tailwind is compiled to a static file (`static/css/tailwind-built.css`) at commit time, not loaded from the CDN Play script - this makes every page load much faster since the browser doesn't recompile the whole utility set on every navigation. If you add new Tailwind classes to any template, rebuild it:
+
+```
+npm install
+npx tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind-built.css --minify
+```
+
+Then commit the updated `tailwind-built.css`.
 
 ## Features
 
-- **Registration** - Parent/Guardian self-registration with server-side validation, duplicate-email prevention, and hashed passwords.
+- **Registration** - Staff/BHW self-registration with server-side validation, duplicate-email prevention, and hashed passwords. Public registration can never create a Parent/Guardian or Admin account.
 - **Login/Logout** - Email-based authentication with generic error messages (no user enumeration) and role-based redirect after login.
-- **Custom Dashboard** - `/dashboard/` for STAFF/ADMIN with menus for Enrolled Children, Parent/Guardian Records, Health Records, Attendance, and (ADMIN-only) Account Management. `/dashboard/parent/` for PARENT users to view their own children.
+- **Custom Dashboard** - `/dashboard/` for STAFF/ADMIN with menus for Enrolled Children, Parent/Guardian Records (including creating a verified Guardian account with a generated temporary password), Health Records, Attendance, Reports, Settings, and (ADMIN-only) Users. `/dashboard/parent/` for PARENT users to view their own children, with read-only Attendance and Health Records pages scoped to their own linked children.

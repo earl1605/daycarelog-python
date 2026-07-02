@@ -147,5 +147,23 @@
         document.getElementById('sidebar').classList.toggle('-translate-x-full', !open);
         document.getElementById('sidebar-overlay').classList.toggle('hidden', !open);
     }
+
+    // Prefetch a sidebar link's page as soon as the pointer reaches it, so the
+    // navigation that follows the actual click has a head start on the network
+    // round trip instead of starting cold.
+    (function () {
+        var prefetched = new Set();
+        document.querySelectorAll('#sidebar nav a[href]').forEach(function (link) {
+            link.addEventListener('pointerenter', function () {
+                var href = link.getAttribute('href');
+                if (!href || prefetched.has(href)) return;
+                prefetched.add(href);
+                var prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = href;
+                document.head.appendChild(prefetchLink);
+            }, { once: true });
+        });
+    })();
 </script>
 {% endblock %}

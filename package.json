@@ -1,0 +1,11 @@
+{
+  "name": "daycarelog-python",
+  "private": true,
+  "description": "Build-time Tailwind CSS compilation for the DaycareLog Django templates",
+  "scripts": {
+    "build:css": "tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind-built.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
