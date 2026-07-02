@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
@@ -19,10 +18,9 @@ def register(request):
     if request.method == "POST":
         form = ParentRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            auth_login(request, user)
-            messages.success(request, "Registration successful. Welcome to DaycareLog!")
-            return redirect("accounts:redirect_after_login")
+            form.save()
+            messages.success(request, "Account created! Please sign in.")
+            return redirect("accounts:login")
     else:
         form = ParentRegistrationForm()
 
