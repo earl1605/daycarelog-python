@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -52,9 +53,18 @@ class Child(models.Model):
 class HealthRecord(models.Model):
     child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="health_records")
     record_date = models.DateField()
-    height_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    weight_kg = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    temperature_c = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    height_cm = models.DecimalField(
+        max_digits=5, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(250)],
+    )
+    weight_kg = models.DecimalField(
+        max_digits=5, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(200)],
+    )
+    temperature_c = models.DecimalField(
+        max_digits=4, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(30), MaxValueValidator(45)],
+    )
     allergies = models.TextField(blank=True)
     notes = models.TextField(blank=True)
     recorded_by = models.ForeignKey(
