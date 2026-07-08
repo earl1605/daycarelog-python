@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 
+from accounts.models import contact_number_validator
+
 User = get_user_model()
 
 
@@ -28,7 +30,9 @@ class PublicRegistrationForm(forms.Form):
     )
     suffix = forms.ChoiceField(choices=User.Suffix.choices, required=False)
     email = forms.EmailField()
-    contact_number = forms.CharField(max_length=20, required=False)
+    contact_number = forms.CharField(
+        max_length=20, required=False, validators=[contact_number_validator]
+    )
     password = forms.CharField(widget=forms.PasswordInput, min_length=8)
     confirm_password = forms.CharField(widget=forms.PasswordInput, min_length=8)
 

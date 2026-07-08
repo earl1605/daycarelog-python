@@ -1,5 +1,11 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
+
+contact_number_validator = RegexValidator(
+    regex=r"^09\d{9}$",
+    message="Enter a valid PH mobile number (e.g. 09171234567).",
+)
 
 
 class User(AbstractUser):
@@ -19,7 +25,9 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.PARENT)
     email = models.EmailField(unique=True)
-    contact_number = models.CharField(max_length=20, blank=True)
+    contact_number = models.CharField(
+        max_length=20, blank=True, validators=[contact_number_validator]
+    )
     middle_name = models.CharField(max_length=150, blank=True)
     suffix = models.CharField(max_length=10, choices=Suffix.choices, blank=True)
     # Stored as a base64 data URI (resized client-side to ~256px before upload),
