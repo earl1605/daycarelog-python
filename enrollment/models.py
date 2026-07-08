@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 class GuardianProfile(models.Model):
@@ -38,6 +39,11 @@ class Child(models.Model):
     sex = models.CharField(max_length=1, choices=Sex.choices)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     enrollment_date = models.DateField(auto_now_add=True)
+
+    def clean(self):
+        super().clean()
+        if self.date_of_birth and self.date_of_birth > timezone.localdate():
+            raise ValidationError({"date_of_birth": "Date of birth cannot be in the future."})
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
