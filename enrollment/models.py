@@ -13,7 +13,7 @@ class GuardianProfile(models.Model):
         limit_choices_to={"role": "PARENT"},
     )
     address = models.CharField(max_length=255, blank=True)
-    relationship_to_child = models.CharField(max_length=50, blank=True)
+    relationship_to_child = models.CharField(max_length=50, blank=False)
 
     def __str__(self):
         return self.user.get_full_name() or self.user.email

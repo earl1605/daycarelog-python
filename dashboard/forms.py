@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
+from accounts.models import contact_number_validator
 from accounts.utils import generate_temp_password
 from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord
 
@@ -57,9 +58,11 @@ class GuardianAccountCreateForm(forms.Form):
     )
     suffix = forms.ChoiceField(choices=User.Suffix.choices, required=False)
     email = forms.EmailField()
-    contact_number = forms.CharField(max_length=20, required=False)
+    contact_number = forms.CharField(
+        max_length=20, required=False, validators=[contact_number_validator]
+    )
     address = forms.CharField(max_length=255, required=False)
-    relationship_to_child = forms.CharField(max_length=50, required=False)
+    relationship_to_child = forms.CharField(max_length=50, required=True)
 
     def clean_email(self):
         email = self.cleaned_data["email"].lower().strip()
