@@ -1,13 +1,4 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-
-from .models import User
-
-
-@admin.register(User)
-class DaycareUserAdmin(UserAdmin):
-    list_display = ("email", "first_name", "last_name", "role", "is_active")
-    list_filter = ("role", "is_active")
-    fieldsets = UserAdmin.fieldsets + (
-        ("DaycareLog", {"fields": ("role", "contact_number", "middle_name", "suffix")}),
-    )
+# Django's default Admin Panel is intentionally not used for this project.
+# Account management (Staff/Admin accounts) is done through the custom
+# dashboard app instead - see dashboard.views.account_management and
+# templates/dashboard/account_management.html.

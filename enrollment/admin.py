@@ -1,8 +1,4 @@
-from django.contrib import admin
-
-from .models import Attendance, Child, GuardianProfile, HealthRecord
-
-admin.site.register(GuardianProfile)
-admin.site.register(Child)
-admin.site.register(HealthRecord)
-admin.site.register(Attendance)
+# Django's default Admin Panel is intentionally not used for this project.
+# GuardianProfile, Child, HealthRecord, and Attendance are all managed
+# through the custom dashboard app instead - see dashboard.views and
+# templates/dashboard/*.html for the equivalent custom interfaces.

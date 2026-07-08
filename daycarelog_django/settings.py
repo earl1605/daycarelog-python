@@ -36,7 +36,9 @@ if not DEBUG:
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # django.contrib.admin intentionally omitted: this project's assignment
+    # requirements prohibit using Django's default Admin Panel. All entity
+    # management goes through the custom dashboard app instead.
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
