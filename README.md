@@ -25,8 +25,9 @@ static/               CSS
 
 ## Roles
 
-- **PARENT** - created only through public self-registration (`/accounts/register/`). Sees their own children's records.
-- **STAFF** / **ADMIN** - created only by an existing ADMIN from the dashboard's Account Management page. Public registration can never create a STAFF or ADMIN account.
+- **STAFF** - created through public self-registration (`/accounts/register/`). Full dashboard access (children, attendance, health records, guardians, reports).
+- **ADMIN** - functionally identical to STAFF, plus Account Management (creating other STAFF/ADMIN accounts). Created only by an existing STAFF/ADMIN user - never through public registration.
+- **PARENT** - created only by an existing STAFF/ADMIN from the dashboard's Guardians page, linked to a specific child. Sees only their own linked children's records, read-only. Can never come from public self-registration, since claiming a specific child needs staff verification.
 
 ## Setup
 
