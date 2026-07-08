@@ -98,6 +98,8 @@ class Attendance(models.Model):
         super().clean()
         if self.date and self.date.weekday() >= 5:
             raise ValidationError({"date": "Attendance can only be recorded for weekdays (Monday–Friday)."})
+        if self.date and self.date > timezone.localdate():
+            raise ValidationError({"date": "Attendance cannot be recorded for a future date."})
 
     def __str__(self):
         return f"{self.child} - {self.date} ({self.status})"
