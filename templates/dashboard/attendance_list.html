@@ -2,29 +2,29 @@
 {% load icons static %}
 {% block title %}Attendance - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-5">
     <h1 class="text-[22px] font-bold text-gray-900">Attendance</h1>
 
-    <div class="flex gap-4 flex-wrap">
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-5 py-3 flex items-center gap-3">
+    <div class="grid grid-cols-3 gap-3">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-4 py-3 flex items-center gap-3">
             <p class="text-2xl font-bold text-green-600">{{ present_count }}</p>
             <p class="text-sm text-gray-500">Present</p>
         </div>
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-5 py-3 flex items-center gap-3">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-4 py-3 flex items-center gap-3">
             <p class="text-2xl font-bold text-red-500">{{ absent_count }}</p>
             <p class="text-sm text-gray-500">Absent</p>
         </div>
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-5 py-3 flex items-center gap-3">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 px-4 py-3 flex items-center gap-3">
             <p class="text-2xl font-bold text-gray-700">{{ total_count }}</p>
             <p class="text-sm text-gray-500">Total</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
-        <h2 class="text-[17px] font-bold text-gray-900 mb-4 flex items-center gap-2">
-            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Record Attendance
+    <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+        <h2 class="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+            {% icon "plus" cls="w-4 h-4 text-primary-600" %} Record Attendance
         </h2>
-        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-4">
+        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-3">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
@@ -34,22 +34,22 @@
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm min-w-[640px]">
             <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
                 <tr>
-                    <th class="text-left px-4 py-3 font-medium">Child</th>
-                    <th class="text-left px-4 py-3 font-medium">Date</th>
-                    <th class="text-left px-4 py-3 font-medium">Status</th>
-                    <th class="text-left px-4 py-3 font-medium">Remarks</th>
-                    <th class="text-left px-4 py-3 font-medium">Actions</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Child</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Date</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Status</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Remarks</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for record in records %}
                     <tr class="hover:bg-gray-50/60 transition-colors duration-150">
-                        <td class="px-4 py-3 font-medium text-gray-900">{{ record.child }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ record.date }}</td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-2.5 font-medium text-gray-900">{{ record.child }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.date }}</td>
+                        <td class="px-4 py-2.5">
                             <span class="px-2.5 py-1 rounded-lg text-xs font-medium capitalize
                                 {% if record.status == 'PRESENT' %}bg-green-100 text-green-700
                                 {% elif record.status == 'LATE' %}bg-amber-100 text-amber-600
@@ -57,8 +57,8 @@
                                 {{ record.get_status_display }}
                             </span>
                         </td>
-                        <td class="px-4 py-3 text-gray-500">{{ record.remarks|default:"—" }}</td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.remarks|default:"—" }}</td>
+                        <td class="px-4 py-2.5">
                             <div class="flex flex-wrap gap-1.5">
                                 <a href="{% url 'dashboard:attendance_edit' record.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
                                     {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit

@@ -114,21 +114,21 @@
 .wave-letter:nth-child(10) { animation-delay: 0.90s; }
 
 /* Django form.as_p rendering, styled to match the Tailwind input look */
-.form-styled p { margin: 0 0 1.1rem; }
+.form-styled p { margin: 0 0 0.75rem; }
 .form-styled label {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.25rem;
 }
 .form-styled input,
 .form-styled select,
 .form-styled textarea {
   width: 100%;
   border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 0.65rem 0.9rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }

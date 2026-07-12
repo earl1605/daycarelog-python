@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static icons %}
 {% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <div class="flex h-screen bg-white overflow-hidden">
 
     <div id="sidebar-overlay" onclick="toggleSidebar(false)"
@@ -23,6 +24,7 @@
             {% url 'dashboard:children_list' as url_children %}
             {% url 'dashboard:guardians_list' as url_guardians %}
             {% url 'dashboard:health_records_list' as url_health %}
+            {% url 'dashboard:immunizations_list' as url_immunizations %}
             {% url 'dashboard:attendance_list' as url_attendance %}
             {% url 'dashboard:reports' as url_reports %}
             {% url 'dashboard:settings' as url_settings %}
@@ -30,6 +32,7 @@
             {% url 'dashboard:parent_home' as url_parent %}
             {% url 'dashboard:parent_attendance_list' as url_parent_attendance %}
             {% url 'dashboard:parent_health_records_list' as url_parent_health %}
+            {% url 'dashboard:parent_immunizations_list' as url_parent_immunizations %}
 
             {% if user.is_staff_role %}
                 <div>
@@ -50,6 +53,10 @@
                         <a href="{{ url_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_health %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "heart" %}
                             <span class="flex-1 truncate">Health Records</span>
+                        </a>
+                        <a href="{{ url_immunizations }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_immunizations %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "check" %}
+                            <span class="flex-1 truncate">Immunizations</span>
                         </a>
                         <a href="{{ url_guardians }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_guardians %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "users" %}
@@ -101,6 +108,10 @@
                         <a href="{{ url_parent_health }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent_health %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "heart" %}
                             <span class="flex-1 truncate">Health Records</span>
+                        </a>
+                        <a href="{{ url_parent_immunizations }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_parent_immunizations %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
+                            {% icon "check" %}
+                            <span class="flex-1 truncate">Immunizations</span>
                         </a>
                         <a href="{{ url_settings }}" class="group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] font-medium transition-colors duration-150 {% if request.path == url_settings %}bg-primary-200/80 text-gray-900{% else %}text-gray-500 hover:bg-gray-900/[0.04] hover:text-gray-800{% endif %}">
                             {% icon "settings" %}

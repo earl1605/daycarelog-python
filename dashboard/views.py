@@ -20,10 +20,90 @@ from dashboard.forms import (
     GuardianAccountCreateForm,
     GuardianProfileForm,
     HealthRecordForm,
+    ImmunizationForm,
 )
-from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord
+from enrollment.immunizations import EPI_SCHEDULE
+from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord, Immunization
+from enrollment.nutritional_status import classify_nutritional_status
 
 User = get_user_model()
+
+
+def _nutritional_trend(active_children, months_count=6):
+    """Walks each active child's health-record history and re-derives their
+    nutritional status as of each of the last `months_count` month-ends, so
+    Dashboard and Reports share one trend computation. Mirrors
+    computeNutritionalTrend() in the sibling React project's healthTrends.js."""
+    today = timezone.localdate()
+    month_ends = []
+    for offset in range(months_count - 1, -1, -1):
+        y, m = today.year, today.month - offset
+        while m <= 0:
+            m += 12
+            y -= 1
+        month_ends.append(date(y, m, calendar.monthrange(y, m)[1]))
+
+    trend = []
+    for month_end in month_ends:
+        counts = {"Normal": 0, "Underweight": 0, "Severely Underweight": 0, "Overweight": 0}
+        classified = 0
+        for child in active_children:
+            latest = (
+                HealthRecord.objects.filter(child=child, record_date__lte=month_end)
+                .order_by("-record_date")
+                .first()
+            )
+            if not latest or latest.weight_kg is None:
+                continue
+            _, label = classify_nutritional_status(
+                latest.weight_kg, child.date_of_birth, child.sex, month_end
+            )
+            if label in counts:
+                counts[label] += 1
+                classified += 1
+
+        def pct(key):
+            return round((counts[key] / classified) * 100) if classified else 0
+
+        trend.append({
+            "month": month_end.strftime("%b"),
+            "Normal": pct("Normal"),
+            "Underweight": pct("Underweight"),
+            "Severely Underweight": pct("Severely Underweight"),
+            "Overweight": pct("Overweight"),
+        })
+    return trend
+
+
+def _immunization_detail(active_children, schedule):
+    """Current-snapshot immunization coverage: each active child bucketed into
+    exactly one of Fully/Partially/Not Started Immunized, plus per-vaccine
+    coverage counts. Mirrors computeImmunizationDetail() in the sibling React
+    project's healthTrends.js."""
+    total_expected = sum(v["expected_doses"] for v in schedule)
+
+    buckets = {"Fully Immunized": 0, "Partially Immunized": 0, "Not Started": 0}
+    for child in active_children:
+        given = 0
+        for v in schedule:
+            doses = Immunization.objects.filter(child=child, vaccine_name=v["name"]).count()
+            given += min(doses, v["expected_doses"])
+        if given == 0:
+            buckets["Not Started"] += 1
+        elif given >= total_expected:
+            buckets["Fully Immunized"] += 1
+        else:
+            buckets["Partially Immunized"] += 1
+
+    per_vaccine = []
+    for v in schedule:
+        covered = sum(
+            1 for child in active_children
+            if Immunization.objects.filter(child=child, vaccine_name=v["name"]).count() >= v["expected_doses"]
+        )
+        per_vaccine.append({"vaccine": v["name"], "covered": covered, "total": len(active_children)})
+
+    return buckets, per_vaccine
 
 
 def _month_range(month_str):
@@ -47,10 +127,14 @@ def home(request):
     now = timezone.localtime()
     today = now.date()
 
-    active_count = Child.objects.filter(status=Child.Status.ENROLLED).count()
+    active_children = list(Child.objects.filter(status=Child.Status.ENROLLED))
+    active_count = len(active_children)
     total_children = Child.objects.count()
     present_today = Attendance.objects.filter(date=today, status=Attendance.Status.PRESENT).count()
     attendance_rate = round((present_today / active_count) * 100) if active_count else None
+
+    nutritional_trend = _nutritional_trend(active_children)
+    immunization_buckets, immunization_per_vaccine = _immunization_detail(active_children, EPI_SCHEDULE)
 
     days = []
     cursor = today
@@ -89,6 +173,14 @@ def home(request):
         "weekly_labels": weekly_labels,
         "weekly_present": weekly_present,
         "weekly_absent": weekly_absent,
+        "nutritional_trend_labels": [t["month"] for t in nutritional_trend],
+        "nutritional_trend_normal": [t["Normal"] for t in nutritional_trend],
+        "nutritional_trend_underweight": [t["Underweight"] for t in nutritional_trend],
+        "nutritional_trend_severely_underweight": [t["Severely Underweight"] for t in nutritional_trend],
+        "nutritional_trend_overweight": [t["Overweight"] for t in nutritional_trend],
+        "immunization_bucket_labels": list(immunization_buckets.keys()),
+        "immunization_bucket_values": list(immunization_buckets.values()),
+        "immunization_per_vaccine": immunization_per_vaccine,
     }
     return render(request, "dashboard/home.html", context)
 
@@ -220,6 +312,35 @@ def health_record_delete(request, pk):
 
 
 @staff_or_admin_required
+def immunizations_list(request):
+    if request.method == "POST":
+        form = ImmunizationForm(request.POST)
+        if form.is_valid():
+            record = form.save(commit=False)
+            record.recorded_by = request.user
+            record.save()
+            messages.success(request, "Immunization recorded successfully.")
+            return redirect("dashboard:immunizations_list")
+    else:
+        form = ImmunizationForm()
+    records = Immunization.objects.select_related("child", "recorded_by").all()
+    return render(
+        request,
+        "dashboard/immunizations_list.html",
+        {"records": records, "form": form, "schedule": EPI_SCHEDULE},
+    )
+
+
+@staff_or_admin_required
+@require_POST
+def immunization_delete(request, pk):
+    record = get_object_or_404(Immunization, pk=pk)
+    record.delete()
+    messages.success(request, "Immunization record removed successfully.")
+    return redirect("dashboard:immunizations_list")
+
+
+@staff_or_admin_required
 def attendance_list(request):
     if request.method == "POST":
         form = AttendanceForm(request.POST)
@@ -291,13 +412,40 @@ def reports(request):
     marked_count = present_count + absent_count
     attendance_rate = round((present_count / marked_count) * 100) if marked_count else 0
 
+    active_children = list(Child.objects.filter(status=Child.Status.ENROLLED))
+    nutritional_trend = _nutritional_trend(active_children)
+    immunization_buckets, immunization_per_vaccine = _immunization_detail(active_children, EPI_SCHEDULE)
+
+    month_health_records = (
+        HealthRecord.objects.filter(record_date__gte=first_day, record_date__lte=last_day)
+        .select_related("child", "recorded_by")
+    )
+    health_rows = [
+        {
+            "record": record,
+            "status_label": classify_nutritional_status(
+                record.weight_kg, record.child.date_of_birth, record.child.sex, record.record_date
+            )[1],
+        }
+        for record in month_health_records
+    ]
+
     context = {
         "selected_month": f"{year:04d}-{month:02d}",
-        "active_children": Child.objects.filter(status=Child.Status.ENROLLED).count(),
+        "active_children": len(active_children),
         "school_days": school_days,
         "present_count": present_count,
         "absent_count": absent_count,
         "attendance_rate": attendance_rate,
+        "health_rows": health_rows,
+        "nutritional_trend_labels": [t["month"] for t in nutritional_trend],
+        "nutritional_trend_normal": [t["Normal"] for t in nutritional_trend],
+        "nutritional_trend_underweight": [t["Underweight"] for t in nutritional_trend],
+        "nutritional_trend_severely_underweight": [t["Severely Underweight"] for t in nutritional_trend],
+        "nutritional_trend_overweight": [t["Overweight"] for t in nutritional_trend],
+        "immunization_bucket_labels": list(immunization_buckets.keys()),
+        "immunization_bucket_values": list(immunization_buckets.values()),
+        "immunization_per_vaccine": immunization_per_vaccine,
     }
     return render(request, "dashboard/reports.html", context)
 
@@ -392,3 +540,16 @@ def parent_health_records_list(request):
         else HealthRecord.objects.none()
     )
     return render(request, "dashboard/parent_health_records_list.html", {"records": records})
+
+
+@login_required
+def parent_immunizations_list(request):
+    if request.user.is_staff_role:
+        return redirect("dashboard:home")
+    guardian_profile = GuardianProfile.objects.filter(user=request.user).first()
+    records = (
+        Immunization.objects.filter(child__guardian=guardian_profile).select_related("child")
+        if guardian_profile
+        else Immunization.objects.none()
+    )
+    return render(request, "dashboard/parent_immunizations_list.html", {"records": records})

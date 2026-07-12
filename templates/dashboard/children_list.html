@@ -2,16 +2,16 @@
 {% load icons %}
 {% block title %}Enrolled Children - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-5">
     <div class="flex items-center justify-between">
         <h1 class="text-[22px] font-bold text-gray-900">Children</h1>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
-        <h2 class="text-[17px] font-bold text-gray-900 mb-4 flex items-center gap-2">
-            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Add a Child
+    <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+        <h2 class="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
+            {% icon "plus" cls="w-4 h-4 text-primary-600" %} Add a Child
         </h2>
-        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-4">
+        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-3">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
@@ -24,24 +24,24 @@
         class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400">
 
     <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
-        <table class="w-full text-sm" id="children-table">
+        <table class="w-full text-sm min-w-[720px]" id="children-table">
             <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
                 <tr>
-                    <th class="text-left px-4 py-3 font-medium">Name</th>
-                    <th class="text-left px-4 py-3 font-medium">Date of Birth</th>
-                    <th class="text-left px-4 py-3 font-medium">Sex</th>
-                    <th class="text-left px-4 py-3 font-medium">Status</th>
-                    <th class="text-left px-4 py-3 font-medium">Guardian</th>
-                    <th class="text-left px-4 py-3 font-medium">Actions</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Name</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Date of Birth</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Sex</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Status</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Guardian</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for child in children %}
                     <tr class="hover:bg-gray-50/60 transition-colors duration-150" data-name="{{ child.first_name }} {{ child.last_name }}">
-                        <td class="px-4 py-3 font-medium text-gray-900">{{ child.first_name }} {{ child.last_name }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ child.date_of_birth }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ child.get_sex_display }}</td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-2.5 font-medium text-gray-900">{{ child.first_name }} {{ child.last_name }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ child.date_of_birth }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ child.get_sex_display }}</td>
+                        <td class="px-4 py-2.5">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                 {% if child.status == 'ENROLLED' %}bg-green-50 text-green-700
                                 {% elif child.status == 'PENDING' %}bg-amber-50 text-amber-600
@@ -49,8 +49,8 @@
                                 {{ child.get_status_display }}
                             </span>
                         </td>
-                        <td class="px-4 py-3 text-gray-500">{{ child.guardian }}</td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-2.5 text-gray-500">{{ child.guardian }}</td>
+                        <td class="px-4 py-2.5">
                             <div class="flex flex-wrap gap-1.5">
                                 <a href="{% url 'dashboard:child_edit' child.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
                                     {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit

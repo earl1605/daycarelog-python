@@ -15,6 +15,8 @@ urlpatterns = [
     path("health-records/", views.health_records_list, name="health_records_list"),
     path("health-records/<int:pk>/edit/", views.health_record_edit, name="health_record_edit"),
     path("health-records/<int:pk>/delete/", views.health_record_delete, name="health_record_delete"),
+    path("immunizations/", views.immunizations_list, name="immunizations_list"),
+    path("immunizations/<int:pk>/delete/", views.immunization_delete, name="immunization_delete"),
     path("attendance/", views.attendance_list, name="attendance_list"),
     path("attendance/<int:pk>/edit/", views.attendance_edit, name="attendance_edit"),
     path("attendance/<int:pk>/delete/", views.attendance_delete, name="attendance_delete"),
@@ -25,4 +27,5 @@ urlpatterns = [
     path("parent/", views.parent_home, name="parent_home"),
     path("parent/attendance/", views.parent_attendance_list, name="parent_attendance_list"),
     path("parent/health-records/", views.parent_health_records_list, name="parent_health_records_list"),
+    path("parent/immunizations/", views.parent_immunizations_list, name="parent_immunizations_list"),
 ]

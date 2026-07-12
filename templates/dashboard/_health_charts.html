@@ -1,0 +1,110 @@
+{% comment %}
+Nutritional Status Trend + Immunization Coverage cards, shared by Dashboard
+and Reports so both pages render identical charts from the same context
+variables (nutritional_trend_*, immunization_bucket_*, immunization_per_vaccine,
+active_count). Chart.js itself is loaded once globally by layouts/app.html.
+{% endcomment %}
+<div class="bg-white rounded-xl border border-gray-200/70 p-5">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-[15px] font-bold text-gray-900">Nutritional Status Trend</h2>
+    </div>
+    {% if active_count == 0 %}
+        <p class="text-gray-400 text-sm">No active children yet.</p>
+    {% else %}
+        <div style="height: 190px;"><canvas id="nutritionalChart"></canvas></div>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-xl border border-gray-200/70 p-5">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-[15px] font-bold text-gray-900">Immunization Coverage</h2>
+        <a href="{% url 'dashboard:immunizations_list' %}" class="text-primary-700 text-sm font-medium hover:underline">Record dose &rarr;</a>
+    </div>
+    {% if active_count == 0 %}
+        <p class="text-gray-400 text-sm">No active children yet.</p>
+    {% else %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <div style="height: 190px;"><canvas id="immunizationChart"></canvas></div>
+            <div class="space-y-1.5">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">By vaccine</p>
+                {% for v in immunization_per_vaccine %}
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">{{ v.vaccine }}</span>
+                        <span class="font-medium text-gray-900">{{ v.covered }}/{{ v.total }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{{ nutritional_trend_labels|json_script:"nutri-labels-data" }}
+{{ nutritional_trend_normal|json_script:"nutri-normal-data" }}
+{{ nutritional_trend_underweight|json_script:"nutri-underweight-data" }}
+{{ nutritional_trend_severely_underweight|json_script:"nutri-severe-data" }}
+{{ nutritional_trend_overweight|json_script:"nutri-overweight-data" }}
+{{ immunization_bucket_labels|json_script:"imm-bucket-labels" }}
+{{ immunization_bucket_values|json_script:"imm-bucket-values" }}
+<script>
+    (function () {
+        if (document.getElementById('nutritionalChart')) {
+            var labels = JSON.parse(document.getElementById('nutri-labels-data').textContent);
+            var normal = JSON.parse(document.getElementById('nutri-normal-data').textContent);
+            var underweight = JSON.parse(document.getElementById('nutri-underweight-data').textContent);
+            var severe = JSON.parse(document.getElementById('nutri-severe-data').textContent);
+            var overweight = JSON.parse(document.getElementById('nutri-overweight-data').textContent);
+
+            new Chart(document.getElementById('nutritionalChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Normal', data: normal, borderColor: '#0ca30c', backgroundColor: '#0ca30c', tension: 0.3, pointRadius: 3 },
+                        { label: 'Underweight', data: underweight, borderColor: '#ec835a', backgroundColor: '#ec835a', tension: 0.3, pointRadius: 3 },
+                        { label: 'Severely Underweight', data: severe, borderColor: '#d03b3b', backgroundColor: '#d03b3b', tension: 0.3, pointRadius: 3 },
+                        { label: 'Overweight', data: overweight, borderColor: '#fab219', backgroundColor: '#fab219', tension: 0.3, pointRadius: 3 },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 } } },
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: function (v) { return v + '%'; }, color: '#9CA3AF', font: { size: 11 } },
+                            grid: { color: '#F0F0EE' },
+                        },
+                    },
+                },
+            });
+        }
+
+        if (document.getElementById('immunizationChart')) {
+            var bucketLabels = JSON.parse(document.getElementById('imm-bucket-labels').textContent);
+            var bucketValues = JSON.parse(document.getElementById('imm-bucket-values').textContent);
+            var colorMap = { 'Fully Immunized': '#0ca30c', 'Partially Immunized': '#fab219', 'Not Started': '#d03b3b' };
+
+            new Chart(document.getElementById('immunizationChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: bucketLabels,
+                    datasets: [{
+                        data: bucketValues,
+                        backgroundColor: bucketLabels.map(function (l) { return colorMap[l]; }),
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+                },
+            });
+        }
+    })();
+</script>

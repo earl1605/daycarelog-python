@@ -2,25 +2,25 @@
 {% load icons %}
 {% block title %}Attendance - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-5">
     <h1 class="text-[22px] font-bold text-gray-900">Attendance</h1>
 
     <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm min-w-[460px]">
             <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
                 <tr>
-                    <th class="text-left px-4 py-3 font-medium">Child</th>
-                    <th class="text-left px-4 py-3 font-medium">Date</th>
-                    <th class="text-left px-4 py-3 font-medium">Status</th>
-                    <th class="text-left px-4 py-3 font-medium">Remarks</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Child</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Date</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Status</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Remarks</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for record in records %}
                     <tr class="hover:bg-gray-50/60 transition-colors duration-150">
-                        <td class="px-4 py-3 font-medium text-gray-900">{{ record.child }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ record.date }}</td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-2.5 font-medium text-gray-900">{{ record.child }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.date }}</td>
+                        <td class="px-4 py-2.5">
                             <span class="px-2.5 py-1 rounded-lg text-xs font-medium capitalize
                                 {% if record.status == 'PRESENT' %}bg-green-100 text-green-700
                                 {% elif record.status == 'LATE' %}bg-amber-100 text-amber-600
@@ -28,7 +28,7 @@
                                 {{ record.get_status_display }}
                             </span>
                         </td>
-                        <td class="px-4 py-3 text-gray-500">{{ record.remarks|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.remarks|default:"—" }}</td>
                     </tr>
                 {% empty %}
                     <tr><td colspan="4" class="text-center py-16">

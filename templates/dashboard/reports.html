@@ -2,7 +2,7 @@
 {% load icons %}
 {% block title %}Reports - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-[22px] font-bold text-gray-900">Reports</h1>
         <form method="get" class="flex gap-2 flex-wrap">
@@ -15,32 +15,71 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl border border-gray-200/70 p-6">
-            <h2 class="text-[17px] font-bold text-gray-900 mb-4">Attendance Summary</h2>
-            <div class="space-y-3 text-sm">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-500">Active Children</span>
-                    <span class="font-semibold text-gray-900">{{ active_children }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-500">School Days</span>
-                    <span class="font-semibold text-gray-900">{{ school_days }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-500">Total Present</span>
-                    <span class="font-semibold text-gray-900">{{ present_count }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-500">Total Absent</span>
-                    <span class="font-semibold text-gray-900">{{ absent_count }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-500">Attendance Rate</span>
-                    <span class="font-semibold text-gray-900">{{ attendance_rate }}%</span>
-                </div>
+    <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+        <h2 class="text-[15px] font-bold text-gray-900 mb-3">Attendance Summary</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-sm">
+            <div class="bg-[#FAFAFA] rounded-lg border border-gray-200/70 px-3 py-2">
+                <p class="text-gray-500">Active Children</p>
+                <p class="font-semibold text-gray-900 text-base">{{ active_children }}</p>
+            </div>
+            <div class="bg-[#FAFAFA] rounded-lg border border-gray-200/70 px-3 py-2">
+                <p class="text-gray-500">School Days</p>
+                <p class="font-semibold text-gray-900 text-base">{{ school_days }}</p>
+            </div>
+            <div class="bg-[#FAFAFA] rounded-lg border border-gray-200/70 px-3 py-2">
+                <p class="text-gray-500">Total Present</p>
+                <p class="font-semibold text-gray-900 text-base">{{ present_count }}</p>
+            </div>
+            <div class="bg-[#FAFAFA] rounded-lg border border-gray-200/70 px-3 py-2">
+                <p class="text-gray-500">Total Absent</p>
+                <p class="font-semibold text-gray-900 text-base">{{ absent_count }}</p>
+            </div>
+            <div class="bg-[#FAFAFA] rounded-lg border border-gray-200/70 px-3 py-2">
+                <p class="text-gray-500">Attendance Rate</p>
+                <p class="font-semibold text-gray-900 text-base">{{ attendance_rate }}%</p>
             </div>
         </div>
+    </div>
+
+    {% include "dashboard/_health_charts.html" %}
+
+    <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
+        <div class="p-5 pb-0">
+            <h2 class="text-[15px] font-bold text-gray-900">Health Records This Month</h2>
+        </div>
+        <table class="w-full text-sm min-w-[820px] mt-3">
+            <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                <tr>
+                    <th class="text-left px-4 py-2.5 font-medium">Child</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Date</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Height (cm)</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Weight (kg)</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Nutritional Status</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Allergies</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Recorded By</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for row in health_rows %}
+                    <tr class="hover:bg-gray-50/60 transition-colors duration-150">
+                        <td class="px-4 py-2.5 font-medium text-gray-900">{{ row.record.child }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ row.record.record_date }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ row.record.height_cm|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ row.record.weight_kg|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ row.status_label|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ row.record.allergies|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ row.record.recorded_by.get_full_name|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center py-16">
+                        <span class="inline-flex w-12 h-12 rounded-full bg-gray-100 text-gray-400 items-center justify-center mb-3">
+                            {% icon "heart" cls="w-[22px] h-[22px]" %}
+                        </span>
+                        <p class="font-medium text-gray-500">No health records for this month.</p>
+                    </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

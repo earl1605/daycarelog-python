@@ -1,36 +1,35 @@
 {% extends "layouts/app.html" %}
 {% load icons %}
-{% block title %}Health Records - DaycareLog{% endblock %}
+{% block title %}Immunizations - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-5">
-    <h1 class="text-[22px] font-bold text-gray-900">Health Records</h1>
+    <h1 class="text-[22px] font-bold text-gray-900">Immunizations</h1>
 
     <div class="bg-white rounded-xl border border-gray-200/70 p-5">
         <h2 class="text-[15px] font-bold text-gray-900 mb-3 flex items-center gap-2">
-            {% icon "plus" cls="w-4 h-4 text-primary-600" %} Add a Health Record
+            {% icon "plus" cls="w-4 h-4 text-primary-600" %} Record Immunization
         </h2>
         <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-3">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
-                Add Health Record
+                Record Immunization
             </button>
         </form>
     </div>
 
-    <input type="text" id="health-search" placeholder="Search by child name…"
+    <input type="text" id="immunizations-search" placeholder="Search by child name…"
         class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400">
 
     <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
-        <table class="w-full text-sm min-w-[900px]" id="health-table">
+        <table class="w-full text-sm min-w-[780px]" id="immunizations-table">
             <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
                 <tr>
                     <th class="text-left px-4 py-2.5 font-medium">Child</th>
-                    <th class="text-left px-4 py-2.5 font-medium">Date</th>
-                    <th class="text-left px-4 py-2.5 font-medium">Height (cm)</th>
-                    <th class="text-left px-4 py-2.5 font-medium">Weight (kg)</th>
-                    <th class="text-left px-4 py-2.5 font-medium">Temp (&deg;C)</th>
-                    <th class="text-left px-4 py-2.5 font-medium">Allergies</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Vaccine</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Dose</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Date Given</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Administered By</th>
                     <th class="text-left px-4 py-2.5 font-medium">Recorded By</th>
                     <th class="text-left px-4 py-2.5 font-medium">Actions</th>
                 </tr>
@@ -39,18 +38,14 @@
                 {% for record in records %}
                     <tr class="hover:bg-gray-50/60 transition-colors duration-150" data-name="{{ record.child }}">
                         <td class="px-4 py-2.5 font-medium text-gray-900">{{ record.child }}</td>
-                        <td class="px-4 py-2.5 text-gray-500">{{ record.record_date }}</td>
-                        <td class="px-4 py-2.5 text-gray-500">{{ record.height_cm|default:"—" }}</td>
-                        <td class="px-4 py-2.5 text-gray-500">{{ record.weight_kg|default:"—" }}</td>
-                        <td class="px-4 py-2.5 text-gray-500">{{ record.temperature_c|default:"—" }}</td>
-                        <td class="px-4 py-2.5 text-gray-500">{{ record.allergies|default:"—" }}</td>
-                        <td class="px-4 py-2.5 text-gray-500">{{ record.recorded_by|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.vaccine_name }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">Dose {{ record.dose_number }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.date_given }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.administered_by|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ record.recorded_by.get_full_name|default:"—" }}</td>
                         <td class="px-4 py-2.5">
                             <div class="flex flex-wrap gap-1.5">
-                                <a href="{% url 'dashboard:health_record_edit' record.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
-                                    {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit
-                                </a>
-                                <form method="post" action="{% url 'dashboard:health_record_delete' record.pk %}" onsubmit="return confirm('Remove this health record?');">
+                                <form method="post" action="{% url 'dashboard:immunization_delete' record.pk %}" onsubmit="return confirm('Remove this immunization record?');">
                                     {% csrf_token %}
                                     <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors duration-150">
                                         {% icon "trash" cls="w-[13px] h-[13px]" %} Delete
@@ -60,24 +55,24 @@
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="8" class="text-center py-16">
+                    <tr><td colspan="7" class="text-center py-16">
                         <span class="inline-flex w-12 h-12 rounded-full bg-gray-100 text-gray-400 items-center justify-center mb-3">
-                            {% icon "heart" cls="w-[22px] h-[22px]" %}
+                            {% icon "check" cls="w-[22px] h-[22px]" %}
                         </span>
-                        <p class="font-medium text-gray-500">No health records yet.</p>
+                        <p class="font-medium text-gray-500">No immunization records yet.</p>
                     </td></tr>
                 {% endfor %}
             </tbody>
         </table>
-        <p id="health-no-results" class="hidden text-center py-10 text-gray-400 text-sm">No health records match your search.</p>
+        <p id="immunizations-no-results" class="hidden text-center py-10 text-gray-400 text-sm">No records match your search.</p>
     </div>
 </div>
 
 <script>
     (function () {
-        var input = document.getElementById('health-search');
-        var rows = document.querySelectorAll('#health-table tbody tr[data-name]');
-        var empty = document.getElementById('health-no-results');
+        var input = document.getElementById('immunizations-search');
+        var rows = document.querySelectorAll('#immunizations-table tbody tr[data-name]');
+        var empty = document.getElementById('immunizations-no-results');
         input.addEventListener('input', function () {
             var term = input.value.trim().toLowerCase();
             var visible = 0;

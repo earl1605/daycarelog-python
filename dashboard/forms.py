@@ -5,7 +5,8 @@ from django.db.models import Q
 
 from accounts.models import contact_number_validator
 from accounts.utils import generate_temp_password
-from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord
+from enrollment.immunizations import EPI_SCHEDULE
+from enrollment.models import Attendance, Child, GuardianProfile, HealthRecord, Immunization
 
 User = get_user_model()
 
@@ -100,6 +101,22 @@ class HealthRecordForm(forms.ModelForm):
         widgets = {
             "record_date": forms.DateInput(attrs={"type": "date"}),
             "allergies": forms.Textarea(attrs={"rows": 2}),
+            "notes": forms.Textarea(attrs={"rows": 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["child"].queryset = Child.objects.order_by("first_name", "last_name")
+
+
+class ImmunizationForm(forms.ModelForm):
+    vaccine_name = forms.ChoiceField(choices=[(v["name"], v["name"]) for v in EPI_SCHEDULE])
+
+    class Meta:
+        model = Immunization
+        fields = ["child", "vaccine_name", "dose_number", "date_given", "administered_by", "notes"]
+        widgets = {
+            "date_given": forms.DateInput(attrs={"type": "date"}),
             "notes": forms.Textarea(attrs={"rows": 2}),
         }
 

@@ -79,6 +79,39 @@ class HealthRecord(models.Model):
         return f"{self.child} - {self.record_date}"
 
 
+class Immunization(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="immunizations")
+    vaccine_name = models.CharField(max_length=100)
+    dose_number = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    date_given = models.DateField()
+    administered_by = models.CharField(max_length=150, blank=True)
+    notes = models.TextField(blank=True)
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        limit_choices_to={"role__in": ["STAFF", "ADMIN"]},
+    )
+
+    class Meta:
+        ordering = ["-date_given"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["child", "vaccine_name", "dose_number"],
+                name="unique_child_vaccine_dose",
+                violation_error_message="This dose has already been recorded for this child.",
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.date_given and self.date_given > timezone.localdate():
+            raise ValidationError({"date_given": "Date given cannot be in the future."})
+
+    def __str__(self):
+        return f"{self.child} - {self.vaccine_name} dose {self.dose_number}"
+
+
 class Attendance(models.Model):
     class Status(models.TextChoices):
         PRESENT = "PRESENT", "Present"

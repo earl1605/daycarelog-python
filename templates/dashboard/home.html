@@ -2,7 +2,7 @@
 {% load icons %}
 {% block title %}Dashboard - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-5">
     <div>
         <h1 class="text-[22px] font-bold text-gray-900">
             Good {{ greeting }}, {{ user.first_name|default:user.email }} 👋
@@ -10,8 +10,8 @@
         <p class="text-gray-500 text-sm mt-1">{% now "l, F j, Y" %}</p>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-primary-50 text-primary-600">
                 {% icon "users" cls="w-5 h-5" %}
             </div>
@@ -20,7 +20,7 @@
                 <p class="text-[28px] leading-tight font-bold text-gray-900">{{ active_count }}</p>
             </div>
         </div>
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
                 {% icon "check" cls="w-5 h-5" %}
             </div>
@@ -29,7 +29,7 @@
                 <p class="text-[28px] leading-tight font-bold text-gray-900">{{ present_today }}</p>
             </div>
         </div>
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-violet-50 text-violet-600">
                 {% icon "clipboard" cls="w-5 h-5" %}
             </div>
@@ -38,7 +38,7 @@
                 <p class="text-[28px] leading-tight font-bold text-gray-900">{{ total_children }}</p>
             </div>
         </div>
-        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 md:p-5 flex items-center gap-4">
+        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-amber-50 text-amber-600">
                 {% icon "calendar" cls="w-5 h-5" %}
             </div>
@@ -49,42 +49,44 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
-        <div class="flex items-center justify-between mb-5">
-            <h2 class="text-[17px] font-bold text-gray-900">Weekly Attendance</h2>
+    <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-[15px] font-bold text-gray-900">Weekly Attendance</h2>
             <a href="{% url 'dashboard:attendance_list' %}" class="text-primary-700 text-sm font-medium hover:underline">View all &rarr;</a>
         </div>
-        <div style="height: 220px;">
+        <div style="height: 200px;">
             <canvas id="attendanceChart"></canvas>
         </div>
     </div>
 
+    {% include "dashboard/_health_charts.html" %}
+
     <div>
-        <h2 class="text-[17px] font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <a href="{% url 'dashboard:children_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
-                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
-                    {% icon "users" cls="w-[18px] h-[18px]" %}
+        <h2 class="text-[15px] font-bold text-gray-900 mb-3">Quick Actions</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="{% url 'dashboard:children_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-3 h-24 flex flex-col items-center justify-center gap-2 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "users" cls="w-4 h-4" %}
                 </span>
-                <span class="text-[13px] font-medium text-gray-700">Children</span>
+                <span class="text-[12px] font-medium text-gray-700">Children</span>
             </a>
-            <a href="{% url 'dashboard:attendance_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
-                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
-                    {% icon "clipboard" cls="w-[18px] h-[18px]" %}
+            <a href="{% url 'dashboard:attendance_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-3 h-24 flex flex-col items-center justify-center gap-2 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "clipboard" cls="w-4 h-4" %}
                 </span>
-                <span class="text-[13px] font-medium text-gray-700">Attendance</span>
+                <span class="text-[12px] font-medium text-gray-700">Attendance</span>
             </a>
-            <a href="{% url 'dashboard:health_records_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
-                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
-                    {% icon "heart" cls="w-[18px] h-[18px]" %}
+            <a href="{% url 'dashboard:health_records_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-3 h-24 flex flex-col items-center justify-center gap-2 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "heart" cls="w-4 h-4" %}
                 </span>
-                <span class="text-[13px] font-medium text-gray-700">Health Records</span>
+                <span class="text-[12px] font-medium text-gray-700">Health Records</span>
             </a>
-            <a href="{% url 'dashboard:guardians_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 h-28 flex flex-col items-center justify-center gap-2.5 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
-                <span class="w-9 h-9 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
-                    {% icon "users" cls="w-[18px] h-[18px]" %}
+            <a href="{% url 'dashboard:guardians_list' %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-3 h-24 flex flex-col items-center justify-center gap-2 text-center transition-colors duration-150 hover:bg-gray-100/80 hover:border-gray-300">
+                <span class="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                    {% icon "users" cls="w-4 h-4" %}
                 </span>
-                <span class="text-[13px] font-medium text-gray-700">Guardians</span>
+                <span class="text-[12px] font-medium text-gray-700">Guardians</span>
             </a>
         </div>
     </div>
@@ -93,7 +95,6 @@
 {{ weekly_labels|json_script:"weekly-labels-data" }}
 {{ weekly_present|json_script:"weekly-present-data" }}
 {{ weekly_absent|json_script:"weekly-absent-data" }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
     (function () {
         const labels = JSON.parse(document.getElementById('weekly-labels-data').textContent);

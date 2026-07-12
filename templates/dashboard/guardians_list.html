@@ -2,31 +2,31 @@
 {% load icons static %}
 {% block title %}Parent/Guardian Records - DaycareLog{% endblock %}
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-5">
     <h1 class="text-[22px] font-bold text-gray-900">Guardians</h1>
 
     {% if created_guardian %}
-        <div class="bg-white rounded-xl border border-primary-200 p-6">
+        <div class="bg-white rounded-xl border border-primary-200 p-5">
             <div class="flex items-center gap-2 mb-1">
-                {% icon "check" cls="w-[18px] h-[18px] text-primary-600" %}
-                <h2 class="text-[17px] font-bold text-gray-900">Guardian account created</h2>
+                {% icon "check" cls="w-4 h-4 text-primary-600" %}
+                <h2 class="text-[15px] font-bold text-gray-900">Guardian account created</h2>
             </div>
-            <p class="text-sm text-gray-500 mb-4">
+            <p class="text-sm text-gray-500 mb-3">
                 For <span class="font-semibold text-gray-700">{{ created_guardian.name }}</span> ({{ created_guardian.email }}).
                 This temporary password is shown only once — copy it now and share it securely.
             </p>
-            <code class="block bg-[#FAFAFA] border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-800 select-all">
+            <code class="block bg-[#FAFAFA] border border-gray-200 rounded-lg px-3 py-2.5 text-sm font-mono text-gray-800 select-all">
                 {{ created_guardian.password }}
             </code>
         </div>
     {% endif %}
 
-    <div class="bg-white rounded-xl border border-gray-200/70 p-6">
-        <h2 class="text-[17px] font-bold text-gray-900 mb-1 flex items-center gap-2">
-            {% icon "plus" cls="w-[18px] h-[18px] text-primary-600" %} Create a Guardian Account
+    <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+        <h2 class="text-[15px] font-bold text-gray-900 mb-1 flex items-center gap-2">
+            {% icon "plus" cls="w-4 h-4 text-primary-600" %} Create a Guardian Account
         </h2>
-        <p class="text-sm text-gray-500 mb-4">Creates a new Parent/Guardian login and generates a temporary password to share with them. Public self-registration can never create a Parent/Guardian account.</p>
-        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-4">
+        <p class="text-sm text-gray-500 mb-3">Creates a new Parent/Guardian login and generates a temporary password to share with them. Public self-registration can never create a Parent/Guardian account.</p>
+        <form method="post" novalidate class="form-styled grid grid-cols-1 md:grid-cols-2 gap-x-3">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="md:col-span-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
@@ -39,26 +39,26 @@
         class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400">
 
     <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
-        <table class="w-full text-sm" id="guardians-table">
+        <table class="w-full text-sm min-w-[720px]" id="guardians-table">
             <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
                 <tr>
-                    <th class="text-left px-4 py-3 font-medium">Name</th>
-                    <th class="text-left px-4 py-3 font-medium">Email</th>
-                    <th class="text-left px-4 py-3 font-medium">Contact Number</th>
-                    <th class="text-left px-4 py-3 font-medium">Address</th>
-                    <th class="text-left px-4 py-3 font-medium">Children</th>
-                    <th class="text-left px-4 py-3 font-medium">Actions</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Name</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Email</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Contact Number</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Address</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Children</th>
+                    <th class="text-left px-4 py-2.5 font-medium">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for guardian in guardians %}
                     <tr class="hover:bg-gray-50/60 transition-colors duration-150" data-name="{{ guardian.user.get_full_name }}">
-                        <td class="px-4 py-3 font-medium text-gray-900">{{ guardian.user.get_full_name }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ guardian.user.email }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ guardian.user.contact_number|default:"—" }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ guardian.address|default:"—" }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ guardian.children.count }}</td>
-                        <td class="px-4 py-3">
+                        <td class="px-4 py-2.5 font-medium text-gray-900">{{ guardian.user.get_full_name }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ guardian.user.email }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ guardian.user.contact_number|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ guardian.address|default:"—" }}</td>
+                        <td class="px-4 py-2.5 text-gray-500">{{ guardian.children.count }}</td>
+                        <td class="px-4 py-2.5">
                             <div class="flex flex-wrap gap-1.5">
                                 <a href="{% url 'dashboard:guardian_edit' guardian.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
                                     {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit
