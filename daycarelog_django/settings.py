@@ -157,6 +157,19 @@ STORAGES = {
     },
 }
 
+
+# Email (verification links/codes). Defaults to the console backend so
+# nothing needs configuring locally - set EMAIL_BACKEND to
+# django.core.mail.backends.smtp.EmailBackend plus the EMAIL_HOST_* vars
+# in .env to send real email without any code changes.
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@daycarelog.local')
+EMAIL_HOST = config('EMAIL_HOST', default='')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 

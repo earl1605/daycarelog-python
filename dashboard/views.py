@@ -6,8 +6,9 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -220,6 +221,69 @@ def child_delete(request, pk):
     child.delete()
     messages.success(request, "Child removed successfully.")
     return redirect("dashboard:children_list")
+
+
+@login_required
+def child_detail(request, pk):
+    child = get_object_or_404(Child, pk=pk)
+    is_read_only = request.user.is_parent
+    if is_read_only:
+        guardian_profile = GuardianProfile.objects.filter(user=request.user).first()
+        if not guardian_profile or child.guardian_id != guardian_profile.id:
+            raise Http404
+    elif not request.user.is_staff_role:
+        raise PermissionDenied("You do not have access to this page.")
+
+    today = timezone.localdate()
+    health_records = list(child.health_records.all())
+    health_rows = [
+        {
+            "record": record,
+            "status_label": classify_nutritional_status(
+                record.weight_kg, child.date_of_birth, child.sex, record.record_date
+            )[1],
+        }
+        for record in health_records
+    ]
+
+    latest = health_records[0] if health_records else None
+    status_label = None
+    if latest and latest.weight_kg is not None:
+        status_label = classify_nutritional_status(
+            latest.weight_kg, child.date_of_birth, child.sex, today
+        )[1]
+
+    chronological = list(reversed(health_records))
+    growth_dates = [r.record_date.strftime("%b %d") for r in chronological]
+    growth_heights = [float(r.height_cm) if r.height_cm is not None else None for r in chronological]
+    growth_weights = [float(r.weight_kg) if r.weight_kg is not None else None for r in chronological]
+
+    immunizations = list(child.immunizations.all())
+    given_by_vaccine = {}
+    for im in immunizations:
+        given_by_vaccine[im.vaccine_name] = given_by_vaccine.get(im.vaccine_name, 0) + 1
+    immunization_progress = [
+        {
+            "vaccine": v["name"],
+            "given": given_by_vaccine.get(v["name"], 0),
+            "expected": v["expected_doses"],
+        }
+        for v in EPI_SCHEDULE
+    ]
+
+    context = {
+        "child": child,
+        "is_read_only": is_read_only,
+        "health_rows": health_rows,
+        "attendance_records": child.attendance_records.all(),
+        "immunizations": immunizations,
+        "immunization_progress": immunization_progress,
+        "status_label": status_label,
+        "growth_dates": growth_dates,
+        "growth_heights": growth_heights,
+        "growth_weights": growth_weights,
+    }
+    return render(request, "dashboard/child_detail.html", context)
 
 
 @staff_or_admin_required

@@ -18,9 +18,13 @@
             {% if children %}
                 <div class="grid sm:grid-cols-2 gap-3">
                     {% for child in children %}
-                        <div class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg shrink-0">
-                                {{ child.first_name|first }}{{ child.last_name|first }}
+                        <a href="{% url 'dashboard:child_detail' child.pk %}" class="bg-[#FAFAFA] rounded-xl border border-gray-200/70 p-4 flex items-center gap-4 hover:bg-gray-100/80 hover:border-gray-300 transition-colors duration-150">
+                            <div class="w-12 h-12 rounded-full overflow-hidden bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg shrink-0">
+                                {% if child.photo %}
+                                    <img src="{{ child.photo }}" alt="" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ child.first_name|first }}{{ child.last_name|first }}
+                                {% endif %}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="font-semibold text-gray-900 truncate">{{ child.first_name }} {{ child.last_name }}</p>
@@ -32,7 +36,7 @@
                                     {{ child.get_status_display }}
                                 </span>
                             </div>
-                        </div>
+                        </a>
                     {% endfor %}
                 </div>
             {% else %}

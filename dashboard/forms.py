@@ -14,9 +14,14 @@ User = get_user_model()
 class ChildForm(forms.ModelForm):
     class Meta:
         model = Child
-        fields = ["guardian", "first_name", "last_name", "date_of_birth", "sex", "status"]
+        fields = [
+            "guardian", "first_name", "last_name", "date_of_birth", "sex", "status",
+            "blood_type", "medical_conditions", "photo",
+        ]
         widgets = {
             "date_of_birth": forms.DateInput(attrs={"type": "date"}),
+            "medical_conditions": forms.Textarea(attrs={"rows": 2}),
+            "photo": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):

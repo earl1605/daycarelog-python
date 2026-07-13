@@ -1,0 +1,36 @@
+{% extends "layouts/auth.html" %}
+{% block title %}Verify your email - DaycareLog{% endblock %}
+{% block auth_content %}
+    <h1 class="text-2xl font-extrabold text-gray-900 mb-1">Check your email</h1>
+    <p class="text-gray-500 text-sm mb-4">
+        We sent a verification link and a 6-digit code to
+        <span class="font-semibold text-gray-700">{{ email }}</span>.
+        Click the link, or enter the code below.
+    </p>
+
+    {% if form.non_field_errors %}
+        <div class="mb-4 px-3 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
+            {{ form.non_field_errors|striptags }}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'accounts:verify_email_code' %}" novalidate class="form-styled space-y-1">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 rounded-xl transition-colors shadow-sm mt-2">
+            Verify Email
+        </button>
+    </form>
+
+    <form method="post" action="{% url 'accounts:resend_verification' %}" class="mt-4">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{ email }}">
+        <button type="submit" class="w-full text-sm text-primary-600 font-semibold hover:underline">
+            Resend code
+        </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-500 mt-6">
+        <a href="{% url 'accounts:login' %}" class="text-primary-600 font-semibold hover:underline">Back to sign in</a>
+    </p>
+{% endblock %}

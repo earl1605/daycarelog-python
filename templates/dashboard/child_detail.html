@@ -1,0 +1,205 @@
+{% extends "layouts/app.html" %}
+{% load icons %}
+{% block title %}{{ child.first_name }} {{ child.last_name }} - DaycareLog{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-5">
+    <div class="flex items-start gap-4">
+        <a href="{% if is_read_only %}{% url 'dashboard:parent_home' %}{% else %}{% url 'dashboard:children_list' %}{% endif %}" class="mt-1 text-gray-400 hover:text-gray-700">&larr; Back</a>
+        <div class="flex-1">
+            <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-full overflow-hidden bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-2xl shrink-0">
+                    {% if child.photo %}
+                        <img src="{{ child.photo }}" alt="" class="w-full h-full object-cover">
+                    {% else %}
+                        {{ child.first_name|first }}{{ child.last_name|first }}
+                    {% endif %}
+                </div>
+                <div>
+                    <h1 class="text-[22px] font-bold text-gray-900">{{ child.first_name }} {{ child.last_name }}</h1>
+                    <p class="text-gray-500 text-sm">{{ child.get_sex_display }} &middot; {{ child.date_of_birth }}</p>
+                    {% if status_label %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                            {% if status_label == 'Normal' %}bg-green-100 text-green-800
+                            {% elif status_label == 'Overweight' %}bg-yellow-100 text-yellow-800
+                            {% elif status_label == 'Underweight' %}bg-orange-100 text-orange-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ status_label }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if not is_read_only %}
+            <a href="{% url 'dashboard:child_edit' child.pk %}" class="text-sm border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 shrink-0">Edit</a>
+        {% endif %}
+    </div>
+
+    {% if child.medical_conditions %}
+        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3">
+            {% icon "check" cls="shrink-0 mt-0.5 w-4 h-4" %}
+            <div>
+                <p class="font-semibold text-sm">Medical Conditions</p>
+                <p class="text-sm">{{ child.medical_conditions }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="flex gap-1 bg-gray-100 p-1 rounded-xl">
+        <button type="button" class="tab-btn flex-1 text-sm font-medium py-2 rounded-lg transition-colors bg-white shadow-sm text-gray-900" data-tab="profile">Profile</button>
+        <button type="button" class="tab-btn flex-1 text-sm font-medium py-2 rounded-lg transition-colors text-gray-500 hover:text-gray-700" data-tab="health">Health ({{ health_rows|length }})</button>
+        <button type="button" class="tab-btn flex-1 text-sm font-medium py-2 rounded-lg transition-colors text-gray-500 hover:text-gray-700" data-tab="attendance">Attendance ({{ attendance_records|length }})</button>
+    </div>
+
+    <div id="tab-profile" class="tab-panel space-y-4">
+        <div class="bg-white rounded-xl border border-gray-200/70 p-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+                <p class="text-gray-400">Status</p>
+                <p class="font-medium text-gray-900">{{ child.get_status_display }}</p>
+            </div>
+            <div>
+                <p class="text-gray-400">Enrollment Date</p>
+                <p class="font-medium text-gray-900">{{ child.enrollment_date }}</p>
+            </div>
+            <div>
+                <p class="text-gray-400">Guardian</p>
+                <p class="font-medium text-gray-900">{{ child.guardian|default:"—" }}</p>
+            </div>
+            <div>
+                <p class="text-gray-400">Blood Type</p>
+                <p class="font-medium text-gray-900">{{ child.get_blood_type_display|default:"—" }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+            <h3 class="text-[15px] font-bold text-gray-900 mb-3">Immunization Progress</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for v in immunization_progress %}
+                    <span class="text-xs font-medium px-2.5 py-1 rounded-full
+                        {% if v.given >= v.expected %}bg-green-100 text-green-800
+                        {% elif v.given > 0 %}bg-orange-100 text-orange-700
+                        {% else %}bg-gray-100 text-gray-500{% endif %}">
+                        {{ v.vaccine }} {{ v.given }}/{{ v.expected }}
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-health" class="tab-panel hidden space-y-4">
+        <div class="bg-white rounded-xl border border-gray-200/70 p-5">
+            <h3 class="text-[15px] font-bold text-gray-900 mb-3">Growth Over Time</h3>
+            {% if health_rows %}
+                <div style="height: 220px;"><canvas id="growthChart"></canvas></div>
+            {% else %}
+                <p class="text-gray-400 text-sm">No health records yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
+            <table class="w-full text-sm min-w-[560px]">
+                <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                    <tr>
+                        <th class="text-left px-4 py-2.5 font-medium">Date</th>
+                        <th class="text-left px-4 py-2.5 font-medium">Height (cm)</th>
+                        <th class="text-left px-4 py-2.5 font-medium">Weight (kg)</th>
+                        <th class="text-left px-4 py-2.5 font-medium">Status</th>
+                        <th class="text-left px-4 py-2.5 font-medium">Allergies</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for row in health_rows %}
+                        <tr class="hover:bg-gray-50/60 transition-colors duration-150">
+                            <td class="px-4 py-2.5 text-gray-500">{{ row.record.record_date }}</td>
+                            <td class="px-4 py-2.5 text-gray-500">{{ row.record.height_cm|default:"—" }}</td>
+                            <td class="px-4 py-2.5 text-gray-500">{{ row.record.weight_kg|default:"—" }}</td>
+                            <td class="px-4 py-2.5 text-gray-500">{{ row.status_label|default:"—" }}</td>
+                            <td class="px-4 py-2.5 text-gray-500">{{ row.record.allergies|default:"—" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="text-center py-10 text-gray-400 text-sm">No records yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-attendance" class="tab-panel hidden">
+        <div class="bg-white rounded-xl border border-gray-200/70 overflow-x-auto">
+            <table class="w-full text-sm min-w-[420px]">
+                <thead class="bg-[#FAFAFA] text-gray-500 text-xs uppercase tracking-wide border-b border-gray-200/70">
+                    <tr>
+                        <th class="text-left px-4 py-2.5 font-medium">Date</th>
+                        <th class="text-left px-4 py-2.5 font-medium">Status</th>
+                        <th class="text-left px-4 py-2.5 font-medium">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for record in attendance_records %}
+                        <tr class="hover:bg-gray-50/60 transition-colors duration-150">
+                            <td class="px-4 py-2.5 text-gray-500">{{ record.date }}</td>
+                            <td class="px-4 py-2.5">
+                                <span class="px-2.5 py-1 rounded-lg text-xs font-medium capitalize
+                                    {% if record.status == 'PRESENT' %}bg-green-100 text-green-700
+                                    {% elif record.status == 'LATE' %}bg-amber-100 text-amber-600
+                                    {% else %}bg-red-100 text-red-600{% endif %}">
+                                    {{ record.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2.5 text-gray-500">{{ record.remarks|default:"—" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="text-center py-10 text-gray-400 text-sm">No records yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{{ growth_dates|json_script:"growth-dates-data" }}
+{{ growth_heights|json_script:"growth-heights-data" }}
+{{ growth_weights|json_script:"growth-weights-data" }}
+<script>
+    (function () {
+        document.querySelectorAll('.tab-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.tab-btn').forEach(function (b) {
+                    b.classList.remove('bg-white', 'shadow-sm', 'text-gray-900');
+                    b.classList.add('text-gray-500');
+                });
+                btn.classList.add('bg-white', 'shadow-sm', 'text-gray-900');
+                btn.classList.remove('text-gray-500');
+                document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.add('hidden'); });
+                document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+            });
+        });
+
+        if (document.getElementById('growthChart')) {
+            var dates = JSON.parse(document.getElementById('growth-dates-data').textContent);
+            var heights = JSON.parse(document.getElementById('growth-heights-data').textContent);
+            var weights = JSON.parse(document.getElementById('growth-weights-data').textContent);
+
+            new Chart(document.getElementById('growthChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        { label: 'Height (cm)', data: heights, borderColor: '#16a34a', backgroundColor: '#16a34a', yAxisID: 'y', tension: 0.3, pointRadius: 3, spanGaps: true },
+                        { label: 'Weight (kg)', data: weights, borderColor: '#2563eb', backgroundColor: '#2563eb', yAxisID: 'y1', tension: 0.3, pointRadius: 3, spanGaps: true },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 11 } } },
+                        y: { type: 'linear', position: 'left', ticks: { color: '#9CA3AF', font: { size: 11 } }, grid: { color: '#F0F0EE' } },
+                        y1: { type: 'linear', position: 'right', ticks: { color: '#9CA3AF', font: { size: 11 } }, grid: { display: false } },
+                    },
+                },
+            });
+        }
+    })();
+</script>
+{% endblock %}

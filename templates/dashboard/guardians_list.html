@@ -63,7 +63,7 @@
                                 <a href="{% url 'dashboard:guardian_edit' guardian.pk %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition-colors duration-150">
                                     {% icon "pencil" cls="w-[13px] h-[13px]" %} Edit
                                 </a>
-                                <form method="post" action="{% url 'dashboard:guardian_delete' guardian.pk %}" onsubmit="return confirm('Remove this guardian profile? This will also delete their children\'s records.');">
+                                <form method="post" action="{% url 'dashboard:guardian_delete' guardian.pk %}" onsubmit="return confirm('Remove this guardian profile? Their children will stay enrolled, unlinked from any guardian.');">
                                     {% csrf_token %}
                                     <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors duration-150">
                                         {% icon "trash" cls="w-[13px] h-[13px]" %} Delete

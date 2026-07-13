@@ -7,6 +7,7 @@ app_name = "dashboard"
 urlpatterns = [
     path("", views.home, name="home"),
     path("children/", views.children_list, name="children_list"),
+    path("children/<int:pk>/", views.child_detail, name="child_detail"),
     path("children/<int:pk>/edit/", views.child_edit, name="child_edit"),
     path("children/<int:pk>/delete/", views.child_delete, name="child_delete"),
     path("guardians/", views.guardians_list, name="guardians_list"),

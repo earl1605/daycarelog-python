@@ -31,8 +31,22 @@ class Child(models.Model):
         PENDING = "PENDING", "Pending"
         WITHDRAWN = "WITHDRAWN", "Withdrawn"
 
+    class BloodType(models.TextChoices):
+        A_POS = "A+", "A+"
+        A_NEG = "A-", "A-"
+        B_POS = "B+", "B+"
+        B_NEG = "B-", "B-"
+        AB_POS = "AB+", "AB+"
+        AB_NEG = "AB-", "AB-"
+        O_POS = "O+", "O+"
+        O_NEG = "O-", "O-"
+
+    # Nullable: a child can be enrolled before a guardian account exists and
+    # linked later (matching the sibling React app's flow). SET_NULL rather
+    # than CASCADE, since removing a guardian should unlink their children,
+    # not delete the children's own attendance/health/immunization history.
     guardian = models.ForeignKey(
-        GuardianProfile, on_delete=models.CASCADE, related_name="children"
+        GuardianProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name="children"
     )
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
@@ -40,6 +54,12 @@ class Child(models.Model):
     sex = models.CharField(max_length=1, choices=Sex.choices)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
     enrollment_date = models.DateField(auto_now_add=True)
+    blood_type = models.CharField(max_length=3, choices=BloodType.choices, blank=True)
+    medical_conditions = models.TextField(blank=True)
+    # Stored as a base64 data URI, same as User.profile_photo - Vercel's
+    # serverless filesystem is ephemeral, so an ImageField would lose
+    # uploads between deployments.
+    photo = models.TextField(blank=True)
 
     def clean(self):
         super().clean()

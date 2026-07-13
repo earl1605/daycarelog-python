@@ -1,4 +1,5 @@
 {% extends "layouts/app.html" %}
+{% load static %}
 {% block title %}Edit Child - DaycareLog{% endblock %}
 {% block content %}
 <div class="space-y-5 max-w-xl">
@@ -10,6 +11,23 @@
     <div class="bg-white rounded-xl border border-gray-200/70 p-5">
         <form method="post" novalidate class="form-styled">
             {% csrf_token %}
+            <div class="flex items-center gap-4 mb-3">
+                <button type="button" id="child-photo-trigger"
+                    class="relative group w-16 h-16 rounded-full overflow-hidden ring-4 ring-primary-50 shrink-0">
+                    {% if child.photo %}
+                        <img id="child-photo-preview" src="{{ child.photo }}" alt="" class="w-full h-full object-cover">
+                    {% else %}
+                        <div id="child-photo-preview" class="w-full h-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold">
+                            {{ child.first_name|first }}{{ child.last_name|first }}
+                        </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="text-white text-[10px] font-medium">Change</span>
+                    </div>
+                </button>
+                <input type="file" id="child-photo-input" accept="image/*" class="hidden">
+                <p class="text-xs text-gray-400">Click the circle to change photo.</p>
+            </div>
             {{ form.as_p }}
             <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors duration-150">
                 Save Changes
@@ -17,4 +35,13 @@
         </form>
     </div>
 </div>
+<script src="{% static 'js/avatar-picker.js' %}"></script>
+<script>
+    setupAvatarPicker({
+        trigger: document.getElementById('child-photo-trigger'),
+        fileInput: document.getElementById('child-photo-input'),
+        dataInput: document.getElementById('id_photo'),
+        preview: document.getElementById('child-photo-preview'),
+    });
+</script>
 {% endblock %}

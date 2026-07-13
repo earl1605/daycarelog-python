@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 
+from accounts.email_validation import has_mx_record, is_disposable_domain
 from accounts.models import contact_number_validator
 
 User = get_user_model()
@@ -40,6 +41,11 @@ class PublicRegistrationForm(forms.Form):
         email = self.cleaned_data["email"].lower().strip()
         if User.objects.filter(email__iexact=email).exists():
             raise ValidationError("An account with this email already exists.")
+        domain = email.rsplit("@", 1)[-1]
+        if is_disposable_domain(domain):
+            raise ValidationError("Disposable/temporary email addresses aren't allowed. Please use a permanent email address.")
+        if not has_mx_record(domain):
+            raise ValidationError("This email domain can't receive mail. Please check for typos.")
         return email
 
     def clean(self):
@@ -107,6 +113,22 @@ class StaffAccountForm(forms.Form):
 
 class DaycareLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
+
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+        if not user.is_email_verified:
+            raise ValidationError(
+                "Please verify your email before signing in.",
+                code="email_not_verified",
+            )
+
+
+class EmailVerificationCodeForm(forms.Form):
+    email = forms.EmailField(widget=forms.HiddenInput)
+    code = forms.CharField(
+        max_length=6, min_length=6,
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "one-time-code", "placeholder": "123456"}),
+    )
 
 
 class ProfileForm(forms.ModelForm):
