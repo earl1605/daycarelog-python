@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Access Denied - DaycareLog{% endblock %}
+{% block body %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div class="bg-white rounded-2xl border border-gray-200/70 shadow-sm p-8 max-w-md text-center">
+        <p class="text-5xl mb-3">🚫</p>
+        <h1 class="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
+        <p class="text-gray-500 text-sm mb-6">{{ exception|default:"You do not have permission to view this page." }}</p>
+        <a href="{% url 'accounts:redirect_after_login' %}" class="inline-block bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-2.5 px-5 rounded-lg transition-colors duration-150">
+            Back to my dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
