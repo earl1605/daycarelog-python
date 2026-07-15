@@ -1,33 +1,39 @@
 # DaycareLog (Django)
 
-Barangay Daycare Enrollment and Health Tracking System - Django + Supabase (PostgreSQL) implementation.
+Barangay Daycare Enrollment, Attendance, and Health/Immunization Tracking System - Django + Supabase (PostgreSQL) implementation.
 
-This is a separate course deliverable from the existing Spring Boot + React DaycareLog project. It uses Django as the backend framework with server-rendered templates, a **custom-built admin dashboard** (the default Django Admin is not used as the primary interface), and Supabase PostgreSQL as the database.
+This is a separate course deliverable from the sibling Spring Boot + React DaycareLog project. It uses Django as the backend framework with server-rendered templates and a **custom-built dashboard** - the Django Admin app is not installed at all, per the assignment requirement that it not be used as the primary interface.
+
+See [`SRS.md`](SRS.md) for the full Software Requirements Specification (functional/non-functional requirements, user roles, and data model).
 
 ## Tech Stack
 
-- Django 6
+- Django 6, Django REST Framework (mobile/API access mirroring the core dashboard actions)
 - Supabase (PostgreSQL) via the Transaction Pooler
-- django-rest-framework (available for future API endpoints)
+- dnspython (MX-record lookup for email-domain validation at registration)
 - python-decouple for environment configuration
 - Tailwind CSS, compiled to a static file at build time (not the CDN Play script - see "Rebuilding CSS" below)
+- WhiteNoise for static file serving
 
 ## Project Structure
 
 ```
 daycarelog_django/   Project settings, root URLconf
-accounts/            Custom User model (PARENT/STAFF/ADMIN roles), registration, login/logout
-enrollment/           Guardian, Child, HealthRecord, Attendance models
-dashboard/            Custom staff/admin dashboard and parent dashboard views
-templates/            Server-rendered HTML templates
-static/               CSS
+accounts/             Custom User model (PARENT/STAFF/ADMIN roles), registration, email verification, login/logout
+enrollment/           GuardianProfile, Child, HealthRecord, Immunization, Attendance models; EPI schedule and WHO nutritional-status classification
+dashboard/            Custom staff/admin dashboard and parent portal views/forms - the primary UI
+api/                  Django REST Framework endpoints mirroring the dashboard's core actions
+templates/            Server-rendered HTML templates (dashboard/, accounts/, layouts/)
+static/               Tailwind input/output CSS, JS, images
 ```
 
 ## Roles
 
-- **STAFF** - created through public self-registration (`/accounts/register/`). Full dashboard access (children, attendance, health records, guardians, reports).
-- **ADMIN** - functionally identical to STAFF, plus Account Management (creating other STAFF/ADMIN accounts). Created only by an existing STAFF/ADMIN user - never through public registration.
-- **PARENT** - created only by an existing STAFF/ADMIN from the dashboard's Guardians page, linked to a specific child. Sees only their own linked children's records, read-only. Can never come from public self-registration, since claiming a specific child needs staff verification.
+- **STAFF/BHW** - created through public self-registration (`/accounts/register/`), which requires verifying the account's email (via a link or 6-digit code) before it can log in. Full dashboard access: children, attendance, health records, guardians, immunizations, reports, settings.
+- **ADMIN** - functionally identical to STAFF, plus Account Management (creating other STAFF/ADMIN accounts). Created only by an existing STAFF/ADMIN user from the dashboard - never through public registration.
+- **PARENT/GUARDIAN** - created only by an existing STAFF/ADMIN from the dashboard's Guardians page, together with a specific child. Staff verify the guardian's identity in person, so these accounts are marked verified immediately (no separate email-verification step) and are handed a one-time temporary password. Parents see only their own linked children, read-only: home overview, attendance, health records, and immunizations.
+
+Public self-registration **always** creates a STAFF account and **never** PARENT or ADMIN, regardless of submitted data - claiming a specific child requires staff verification, so Parent/Guardian accounts cannot be self-service.
 
 ## Setup
 
@@ -59,9 +65,9 @@ static/               CSS
    python manage.py migrate
    ```
 
-6. Create a superuser (optional, for Django Admin access as a fallback tool):
+6. Build static files (required at least once so templates that reference `static/css/tailwind-built.css` don't 404 locally):
    ```
-   python manage.py createsuperuser
+   python manage.py collectstatic --noinput
    ```
 
 7. Run the development server:
@@ -69,11 +75,13 @@ static/               CSS
    python manage.py runserver
    ```
 
-8. Visit `http://127.0.0.1:8000/` for the landing page. Register a Staff/BHW account at `/accounts/register/` - Parent/Guardian accounts are created by Staff/Admin from the dashboard's Guardians page instead (see Roles below).
+8. Visit `http://127.0.0.1:8000/` for the landing page. Register a Staff/BHW account at `/accounts/register/`, then verify the email address (in local development, `EMAIL_BACKEND` defaults to the console backend, so the verification link/code is printed to the terminal instead of actually being emailed). Parent/Guardian accounts are created by Staff/Admin from the dashboard's Guardians page instead (see Roles above).
+
+There is no Django Admin panel to fall back on - `django.contrib.admin` is intentionally left out of `INSTALLED_APPS`. All record management goes through `/dashboard/`.
 
 ## Rebuilding CSS
 
-Tailwind is compiled to a static file (`static/css/tailwind-built.css`) at commit time, not loaded from the CDN Play script - this makes every page load much faster since the browser doesn't recompile the whole utility set on every navigation. If you add new Tailwind classes to any template, rebuild it:
+Tailwind is compiled to a static file (`static/css/tailwind-built.css`) at build time, not loaded from the CDN Play script - this makes every page load much faster since the browser doesn't recompile the whole utility set on every navigation. If you add new Tailwind classes to any template, rebuild it:
 
 ```
 npm install
@@ -82,8 +90,26 @@ npx tailwindcss -i static/css/tailwind-input.css -o static/css/tailwind-built.cs
 
 Then commit the updated `tailwind-built.css`.
 
+## Running Tests
+
+```
+python manage.py test --keepdb
+```
+
+`--keepdb` is required locally: the Supabase transaction pooler holds the test connection open, which makes Django's normal `DROP DATABASE` teardown fail. The suite covers three end-to-end workflows (registration/verification, staff enrollment-through-attendance-through-health-through-immunization, and parent-portal access) plus validation/duplicate-record/unauthorized-access negative-path tests - see `accounts/tests.py` and `dashboard/tests.py`.
+
 ## Features
 
-- **Registration** - Staff/BHW self-registration with server-side validation, duplicate-email prevention, and hashed passwords. Public registration can never create a Parent/Guardian or Admin account.
+- **Registration &amp; Email Verification** - Staff/BHW self-registration with disposable-email and invalid-mail-domain rejection, duplicate-email prevention, and hashed passwords. The account can't log in until verified via a mailed link or 6-digit code.
 - **Login/Logout** - Email-based authentication with generic error messages (no user enumeration) and role-based redirect after login.
-- **Custom Dashboard** - `/dashboard/` for STAFF/ADMIN with menus for Enrolled Children, Parent/Guardian Records (including creating a verified Guardian account with a generated temporary password), Health Records, Attendance, Reports, Settings, and (ADMIN-only) Users. `/dashboard/parent/` for PARENT users to view their own children, with read-only Attendance and Health Records pages scoped to their own linked children.
+- **Children** - full CRUD (add/edit/delete) with photo, blood type, medical conditions, and enrollment status; a per-child detail page tabbing Profile, Health history, and Attendance history, plus live immunization-dose progress against the DOH EPI schedule.
+- **Guardians** - staff provision a new Parent/Guardian account and profile together in one step (temporary password shown once), or edit/remove an existing one.
+- **Attendance** (core feature) - Present/Absent/Late logging per child per weekday, with validation against weekend dates, future dates, and duplicate (child, date) entries.
+- **Health Records** - height/weight/temperature/allergies/notes per visit, with realistic value-range validation; latest weight is classified into a WHO-based nutritional status and charted as a trend.
+- **Immunizations** - dose tracking against the DOH Expanded Program on Immunization schedule, with a duplicate-dose database constraint.
+- **Reports** - monthly attendance rate, nutritional-status trend, and immunization coverage, with CSV export.
+- **Settings** - a user's own profile fields, profile photo, and password change.
+- **Account Management** (Admin only) - create additional Staff/Admin accounts.
+- **Parent Portal** - `/dashboard/parent/` and read-only Attendance/Health Records/Immunizations pages, all scoped server-side to the logged-in guardian's own children.
+- **Access control** - every dashboard view is guarded by a `staff_or_admin_required` or `admin_required` decorator, or an explicit guardian-ownership check for parent views; unauthorized access renders a branded 403 page instead of Django's bare default.
+- **REST API** (`/api/`) - token-based auth, registration/login/logout, and viewsets for children/guardians/health records/attendance, mirroring the dashboard's core actions for programmatic/mobile access.
