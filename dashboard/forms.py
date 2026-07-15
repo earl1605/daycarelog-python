@@ -88,6 +88,12 @@ class GuardianAccountCreateForm(forms.Form):
             suffix=self.cleaned_data.get("suffix", ""),
             contact_number=self.cleaned_data.get("contact_number", ""),
             role=User.Role.PARENT,
+            # Staff already verify the guardian's identity in person before
+            # creating this account, so it doesn't go through the email
+            # link/code flow that public self-registration requires - without
+            # this, the account would default to unverified and DaycareLoginForm
+            # would permanently refuse the temp-password login below.
+            is_email_verified=True,
         )
         user.set_password(temp_password)
         user.save()
