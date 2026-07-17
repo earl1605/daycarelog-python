@@ -12,14 +12,14 @@ User = get_user_model()
 def make_staff(email="staff@daycare.test", **extra):
     return User.objects.create_user(
         username=email, email=email, password="testpass123",
-        role=User.Role.STAFF, is_staff=True, is_email_verified=True, **extra
+        role=User.Role.STAFF, is_staff=True, **extra
     )
 
 
 def make_parent(email="parent@daycare.test", **extra):
     return User.objects.create_user(
         username=email, email=email, password="testpass123",
-        role=User.Role.PARENT, is_email_verified=True, **extra
+        role=User.Role.PARENT, **extra
     )
 
 
@@ -50,7 +50,6 @@ class StaffChildLifecycleWorkflowTests(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         guardian = GuardianProfile.objects.get(user__email="pat@daycare.test")
-        self.assertTrue(guardian.user.is_email_verified)
 
         response = self.client.post(reverse("dashboard:children_list"), {
             "guardian": guardian.id, "first_name": "Timmy", "last_name": "Reyes",

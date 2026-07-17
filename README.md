@@ -19,7 +19,7 @@ See [`SRS.md`](SRS.md) for the full Software Requirements Specification (functio
 
 ```
 daycarelog_django/   Project settings, root URLconf
-accounts/             Custom User model (PARENT/STAFF/ADMIN roles), registration, email verification, login/logout
+accounts/             Custom User model (PARENT/STAFF/ADMIN roles), registration, login/logout
 enrollment/           GuardianProfile, Child, HealthRecord, Immunization, Attendance models; EPI schedule and WHO nutritional-status classification
 dashboard/            Custom staff/admin dashboard and parent portal views/forms - the primary UI
 api/                  Django REST Framework endpoints mirroring the dashboard's core actions
@@ -29,9 +29,9 @@ static/               Tailwind input/output CSS, JS, images
 
 ## Roles
 
-- **STAFF/BHW** - created through public self-registration (`/accounts/register/`), which requires verifying the account's email (via a link or 6-digit code) before it can log in. Full dashboard access: children, attendance, health records, guardians, immunizations, reports, settings.
+- **STAFF/BHW** - created through public self-registration (`/accounts/register/`) and can log in immediately. Full dashboard access: children, attendance, health records, guardians, immunizations, reports, settings.
 - **ADMIN** - functionally identical to STAFF, plus Account Management (creating other STAFF/ADMIN accounts). Created only by an existing STAFF/ADMIN user from the dashboard - never through public registration.
-- **PARENT/GUARDIAN** - created only by an existing STAFF/ADMIN from the dashboard's Guardians page, together with a specific child. Staff verify the guardian's identity in person, so these accounts are marked verified immediately (no separate email-verification step) and are handed a one-time temporary password. Parents see only their own linked children, read-only: home overview, attendance, health records, and immunizations.
+- **PARENT/GUARDIAN** - created only by an existing STAFF/ADMIN from the dashboard's Guardians page, together with a specific child, and handed a one-time temporary password. Parents see only their own linked children, read-only: home overview, attendance, health records, and immunizations.
 
 Public self-registration **always** creates a STAFF account and **never** PARENT or ADMIN, regardless of submitted data - claiming a specific child requires staff verification, so Parent/Guardian accounts cannot be self-service.
 
@@ -75,7 +75,7 @@ Public self-registration **always** creates a STAFF account and **never** PARENT
    python manage.py runserver
    ```
 
-8. Visit `http://127.0.0.1:8000/` for the landing page. Register a Staff/BHW account at `/accounts/register/`, then verify the email address (in local development, `EMAIL_BACKEND` defaults to the console backend, so the verification link/code is printed to the terminal instead of actually being emailed). Parent/Guardian accounts are created by Staff/Admin from the dashboard's Guardians page instead (see Roles above).
+8. Visit `http://127.0.0.1:8000/` for the landing page. Register a Staff/BHW account at `/accounts/register/` and sign in right away. Parent/Guardian accounts are created by Staff/Admin from the dashboard's Guardians page instead (see Roles above).
 
 There is no Django Admin panel to fall back on - `django.contrib.admin` is intentionally left out of `INSTALLED_APPS`. All record management goes through `/dashboard/`.
 
@@ -96,11 +96,11 @@ Then commit the updated `tailwind-built.css`.
 python manage.py test --keepdb
 ```
 
-`--keepdb` is required locally: the Supabase transaction pooler holds the test connection open, which makes Django's normal `DROP DATABASE` teardown fail. The suite covers three end-to-end workflows (registration/verification, staff enrollment-through-attendance-through-health-through-immunization, and parent-portal access) plus validation/duplicate-record/unauthorized-access negative-path tests - see `accounts/tests.py` and `dashboard/tests.py`.
+`--keepdb` is required locally: the Supabase transaction pooler holds the test connection open, which makes Django's normal `DROP DATABASE` teardown fail. The suite covers three end-to-end workflows (registration/login, staff enrollment-through-attendance-through-health-through-immunization, and parent-portal access) plus validation/duplicate-record/unauthorized-access negative-path tests - see `accounts/tests.py` and `dashboard/tests.py`.
 
 ## Features
 
-- **Registration &amp; Email Verification** - Staff/BHW self-registration with disposable-email and invalid-mail-domain rejection, duplicate-email prevention, and hashed passwords. The account can't log in until verified via a mailed link or 6-digit code.
+- **Registration** - Staff/BHW self-registration with disposable-email and invalid-mail-domain rejection, duplicate-email prevention, and hashed passwords.
 - **Login/Logout** - Email-based authentication with generic error messages (no user enumeration) and role-based redirect after login.
 - **Children** - full CRUD (add/edit/delete) with photo, blood type, medical conditions, and enrollment status; a per-child detail page tabbing Profile, Health history, and Attendance history, plus live immunization-dose progress against the DOH EPI schedule.
 - **Guardians** - staff provision a new Parent/Guardian account and profile together in one step (temporary password shown once), or edit/remove an existing one.

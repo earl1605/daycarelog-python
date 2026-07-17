@@ -26,7 +26,7 @@ records online.
 
 DaycareLog replaces a paper-based daycare logbook. In scope for this Django implementation:
 
-- Staff/BHW and Admin accounts, with public self-registration (staff only) gated by email verification.
+- Staff/BHW and Admin accounts, with public self-registration (staff only).
 - Parent/Guardian accounts, provisioned exclusively by staff (never self-registered), each linked to
   one or more children.
 - Child enrollment records (profile, status, blood type, medical conditions, photo).
@@ -76,14 +76,14 @@ on identical input data, but they do not share a database or codebase.
 
 The system is a monolithic Django project (`daycarelog_django`) split into four apps:
 
-- `accounts` - the custom User model, authentication, and email verification.
+- `accounts` - the custom User model and authentication.
 - `enrollment` - the domain models (guardians, children, health records, immunizations, attendance).
 - `dashboard` - the primary user interface (server-rendered templates + views) for every role.
 - `api` - a Django REST Framework layer exposing the same core actions for non-browser clients.
 
 ### 2.2 Product Functions (Summary)
 
-1. Account registration, email verification, authentication, and role-based routing.
+1. Account registration, authentication, and role-based routing.
 2. Guardian provisioning and child enrollment (staff-managed).
 3. Attendance logging (staff-managed, core feature).
 4. Health record logging and nutritional-status monitoring (staff-managed).
@@ -97,9 +97,9 @@ The system is a monolithic Django project (`daycarelog_django`) split into four 
 
 | Role | How the account is created | Primary goals | Access level |
 |---|---|---|---|
-| **Staff/BHW** | Public self-registration, then email verification | Day-to-day data entry: enroll children, log attendance/health/immunizations, provision guardians | Full dashboard access except Account Management |
+| **Staff/BHW** | Public self-registration | Day-to-day data entry: enroll children, log attendance/health/immunizations, provision guardians | Full dashboard access except Account Management |
 | **Admin** | Created by an existing Staff/Admin from the dashboard | Same as Staff, plus creating other Staff/Admin accounts | Full dashboard access including Account Management |
-| **Parent/Guardian** | Created by Staff/Admin from the Guardians page, together with a child; identity verified in person, account pre-verified | Check on their own child's attendance, health, and immunization history | Read-only, scoped to their own linked children only |
+| **Parent/Guardian** | Created by Staff/Admin from the Guardians page, together with a child; identity verified in person | Check on their own child's attendance, health, and immunization history | Read-only, scoped to their own linked children only |
 
 ### 2.4 Operating Environment
 
@@ -127,9 +127,6 @@ The system is a monolithic Django project (`daycarelog_django`) split into four 
 
 - Each child has at most one guardian in this system (a `ForeignKey`, not a many-to-many); siblings
   are enrolled as separate `Child` records under the same `GuardianProfile`.
-- Outbound email (verification links/codes) uses Django's console backend in local development and is
-  expected to be pointed at a real SMTP provider (`EMAIL_BACKEND` + `EMAIL_HOST_*` in `.env`) in
-  production.
 - The daycare operates on a standard Monday-Friday week; attendance cannot be recorded for
   Saturday/Sunday.
 
@@ -146,19 +143,18 @@ The system is a monolithic Django project (`daycarelog_django`) split into four 
 | FR-1.1 | The system shall allow public self-registration, always creating a STAFF account regardless of any role field submitted by the client. |
 | FR-1.2 | The system shall reject registration if the email domain is a known disposable-email provider, or has no resolvable MX record. |
 | FR-1.3 | The system shall reject registration with an email address already in use. |
-| FR-1.4 | The system shall require a newly registered account to verify its email, via either a clickable link or a 6-digit code, before it can log in. |
-| FR-1.5 | The system shall allow a user to request the verification code be resent, subject to a cooldown period. |
-| FR-1.6 | The system shall authenticate users by email and password and reject sign-in with a generic error message that does not reveal whether the email exists (no user enumeration). |
-| FR-1.7 | The system shall redirect a user after login to the dashboard appropriate to their role (Staff/Admin dashboard vs. Parent portal). |
-| FR-1.8 | The system shall allow an Admin to create additional Staff or Admin accounts from the Account Management page; this capability shall not be reachable by Staff or Parent roles. |
-| FR-1.9 | The system shall let a logged-in user edit their own profile fields, upload a profile photo, and change their password from a Settings page. |
+| FR-1.4 | A newly registered account shall be able to log in immediately, with no separate email-verification step. |
+| FR-1.5 | The system shall authenticate users by email and password and reject sign-in with a generic error message that does not reveal whether the email exists (no user enumeration). |
+| FR-1.6 | The system shall redirect a user after login to the dashboard appropriate to their role (Staff/Admin dashboard vs. Parent portal). |
+| FR-1.7 | The system shall allow an Admin to create additional Staff or Admin accounts from the Account Management page; this capability shall not be reachable by Staff or Parent roles. |
+| FR-1.8 | The system shall let a logged-in user edit their own profile fields, upload a profile photo, and change their password from a Settings page. |
 
 #### 3.1.2 Guardian (Parent/Guardian) Management
 
 | ID | Requirement |
 |---|---|
 | FR-2.1 | The system shall allow Staff/Admin to create a new Parent/Guardian user account and its guardian profile in a single action, generating a one-time temporary password. |
-| FR-2.2 | A guardian account created by staff shall be immediately usable for login (pre-verified), since staff verify the guardian's identity in person. |
+| FR-2.2 | A guardian account created by staff shall be immediately usable for login, since staff verify the guardian's identity in person. |
 | FR-2.3 | The system shall require a `relationship_to_child` value when creating or editing a guardian profile. |
 | FR-2.4 | The system shall allow Staff/Admin to edit or delete an existing guardian profile. |
 | FR-2.5 | The system shall never allow a Parent/Guardian account to be created through public self-registration. |
@@ -247,16 +243,15 @@ The system is a monolithic Django project (`daycarelog_django`) split into four 
 | NFR-7 | Usability | Destructive actions (deleting a child, guardian, health record, attendance entry, or immunization) require an explicit confirmation prompt. |
 | NFR-8 | Performance | Tailwind CSS is precompiled to a static file at build time rather than compiled in-browser on every page load. |
 | NFR-9 | Maintainability | Domain logic shared with the sibling React/Spring Boot implementation (EPI schedule, WHO nutritional-status tables) is centralized in dedicated modules (`enrollment/immunizations.py`, `enrollment/nutritional_status.py`) rather than duplicated inline. |
-| NFR-10 | Testability | Core workflows (registration/verification, staff enrollment-to-attendance-to-health-to-immunization, parent-portal access scoping) and key negative paths (duplicate records, invalid input, unauthorized access) are covered by an automated test suite runnable via `manage.py test`. |
+| NFR-10 | Testability | Core workflows (registration/login, staff enrollment-to-attendance-to-health-to-immunization, parent-portal access scoping) and key negative paths (duplicate records, invalid input, unauthorized access) are covered by an automated test suite runnable via `manage.py test`. |
 
 ### 3.3 External Interface Requirements
 
-**User interfaces:** Landing page; Login; Register; Email verification (pending/code entry); Staff/Admin
+**User interfaces:** Landing page; Login; Register; Staff/Admin
 dashboard (Home, Children, Guardians, Attendance, Health Records, Immunizations, Reports, Settings,
 Account Management); Parent portal (Home, Attendance, Health Records, Immunizations); 403 error page.
 
-**Software interfaces:** PostgreSQL (Supabase, via `psycopg2`); SMTP or console email backend for
-verification messages; a REST API consumable by any HTTP client.
+**Software interfaces:** PostgreSQL (Supabase, via `psycopg2`); a REST API consumable by any HTTP client.
 
 **Hardware interfaces:** None beyond a standard web server and client device.
 
@@ -268,8 +263,7 @@ verification messages; a REST API consumable by any HTTP client.
 
 | Entity | Key fields | Relationships |
 |---|---|---|
-| **User** (`accounts`) | email (unique), role (PARENT/STAFF/ADMIN), contact_number (PH format), is_email_verified, profile_photo | 1-1 with GuardianProfile (when role=PARENT) |
-| **EmailVerification** (`accounts`) | token, 6-digit code, created_at, last_sent_at | 1-1 with User |
+| **User** (`accounts`) | email (unique), role (PARENT/STAFF/ADMIN), contact_number (PH format), profile_photo | 1-1 with GuardianProfile (when role=PARENT) |
 | **GuardianProfile** (`enrollment`) | address, relationship_to_child | 1-1 with User (role=PARENT); 1-many with Child |
 | **Child** (`enrollment`) | first/last name, date_of_birth, sex, status, blood_type, medical_conditions, photo, enrollment_date | many-1 with GuardianProfile (nullable); 1-many with Attendance, HealthRecord, Immunization |
 | **Attendance** (`enrollment`) | date, status (Present/Absent/Late), remarks | many-1 with Child; unique (child, date) |

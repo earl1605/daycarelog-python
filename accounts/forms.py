@@ -114,22 +114,6 @@ class StaffAccountForm(forms.Form):
 class DaycareLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
 
-    def confirm_login_allowed(self, user):
-        super().confirm_login_allowed(user)
-        if not user.is_email_verified:
-            raise ValidationError(
-                "Please verify your email before signing in.",
-                code="email_not_verified",
-            )
-
-
-class EmailVerificationCodeForm(forms.Form):
-    email = forms.EmailField(widget=forms.HiddenInput)
-    code = forms.CharField(
-        max_length=6, min_length=6,
-        widget=forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "one-time-code", "placeholder": "123456"}),
-    )
-
 
 class ProfileForm(forms.ModelForm):
     """Used from the Settings page for a user to edit their own name fields."""
