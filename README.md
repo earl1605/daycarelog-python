@@ -98,6 +98,16 @@ python manage.py test --keepdb
 
 `--keepdb` is required locally: the Supabase transaction pooler holds the test connection open, which makes Django's normal `DROP DATABASE` teardown fail. The suite covers three end-to-end workflows (registration/login, staff enrollment-through-attendance-through-health-through-immunization, and parent-portal access) plus validation/duplicate-record/unauthorized-access negative-path tests - see `accounts/tests.py` and `dashboard/tests.py`.
 
+## Deploying to Vercel
+
+`build_files.sh` no longer runs migrations - it only installs dependencies and collects static files. Run migrations locally against Supabase before deploying:
+
+```
+python manage.py migrate
+```
+
+This keeps preview/production builds on Vercel from ever touching the live schema. Deploy only after migrating locally and confirming the change is safe.
+
 ## Features
 
 - **Registration** - Staff/BHW self-registration with disposable-email and invalid-mail-domain rejection, duplicate-email prevention, and hashed passwords.
