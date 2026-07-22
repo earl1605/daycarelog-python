@@ -2,8 +2,8 @@
 
 ## DaycareLog - Barangay Daycare Enrollment, Attendance & Health Monitoring System (Django Implementation)
 
-**Version:** 2.0 (Development Continuation Milestone)
-**Date:** July 15, 2026
+**Version:** 2.1 (Development Continuation Milestone, with UML diagrams)
+**Date:** July 17, 2026
 **Prepared by:** Christian Earl Mahumot
 **Repository:** https://github.com/earl1605/daycarelog-python
 
@@ -59,9 +59,10 @@ Out of scope: billing/payments, multi-daycare/multi-branch support, SMS notifica
 
 ### 1.5 Overview
 
-Section 2 describes the product at a high level (users, environment, constraints). Section 3 lists
-detailed functional and non-functional requirements. Section 4 describes the data model. Section 5
-lists known limitations.
+Section 2 describes the product at a high level (users, environment, constraints) and closes with a
+use case diagram. Section 3 lists detailed functional and non-functional requirements. Section 4
+describes the data model, including an entity relationship diagram. Section 5 walks three key
+workflows as activity diagrams. Section 6 lists known limitations.
 
 ---
 
@@ -129,6 +130,47 @@ The system is a monolithic Django project (`daycarelog_django`) split into four 
   are enrolled as separate `Child` records under the same `GuardianProfile`.
 - The daycare operates on a standard Monday-Friday week; attendance cannot be recorded for
   Saturday/Sunday.
+
+### 2.7 Use Case Diagram
+
+Mermaid has no native UML use-case notation, so actors are drawn as nodes on the left and use cases
+as stadium-shaped nodes inside the system boundary, matching the functional requirement groups in
+Section 3.1. Admin is a superset of Staff/BHW (same use cases, plus Account Management) rather than a
+separate role with its own set.
+
+```mermaid
+flowchart LR
+    Staff([Staff / BHW])
+    Admin([Admin])
+    Parent([Parent / Guardian])
+
+    subgraph SYS["DaycareLog"]
+        direction TB
+        UC1(Register account)
+        UC2(Log in / log out)
+        UC3(Manage own profile and photo)
+        UC4(Provision guardian account)
+        UC5(Enroll / edit / withdraw child)
+        UC6(Record attendance)
+        UC7(Record health visit)
+        UC8(Record immunization dose)
+        UC9(View monthly reports)
+        UC10(Export report as CSV)
+        UC11(Manage staff/admin accounts)
+        UC12(View own child's records)
+    end
+
+    Staff --> UC1 & UC2 & UC3 & UC4 & UC5 & UC6 & UC7 & UC8 & UC9 & UC10
+    Admin --> UC1 & UC2 & UC3 & UC4 & UC5 & UC6 & UC7 & UC8 & UC9 & UC10 & UC11
+    Parent --> UC2 & UC3 & UC12
+```
+
+Notes:
+- **Parent/Guardian** accounts are never self-registered (FR-2.5) - `UC1 Register account` has no
+  edge from Parent for that reason; their account is created by Staff/Admin via `UC4`.
+- **UC12 View own child's records** is read-only and server-side scoped to the requesting guardian
+  (FR-8.1-FR-8.3) - it is deliberately one use case, not three, since the same ownership check backs
+  the parent's Attendance, Health Records, and Immunizations pages identically.
 
 ---
 
@@ -261,6 +303,94 @@ Account Management); Parent portal (Home, Attendance, Health Records, Immunizati
 
 ## 4. Data Model
 
+### 4.1 Entity Relationship Diagram
+
+Six tables: one custom user model (`accounts.User`) shared by all three roles, and five records under
+`enrollment`. `Child.guardian` and `HealthRecord`/`Immunization.recorded_by` are deliberately nullable
+with `SET_NULL` rather than `CASCADE` - removing a guardian or a staff account must not delete a
+child's own history (see 2.5 Design and Implementation Constraints).
+
+```mermaid
+erDiagram
+    USER ||--o| GUARDIANPROFILE : "1 profile, if role=PARENT"
+    GUARDIANPROFILE o|--o{ CHILD : "guardian of (nullable)"
+    CHILD ||--o{ HEALTHRECORD : "has"
+    CHILD ||--o{ IMMUNIZATION : "has"
+    CHILD ||--o{ ATTENDANCE : "has"
+    USER o|--o{ HEALTHRECORD : "recorded by (nullable)"
+    USER o|--o{ IMMUNIZATION : "recorded by (nullable)"
+
+    USER {
+        int id PK
+        string username
+        string email UK
+        string password
+        string role "PARENT / STAFF / ADMIN"
+        string contact_number
+        string first_name
+        string last_name
+        string middle_name
+        string suffix
+        text profile_photo
+        bool is_staff
+        bool is_active
+    }
+
+    GUARDIANPROFILE {
+        int id PK
+        int user_id FK "unique, OneToOne"
+        string address
+        string relationship_to_child
+    }
+
+    CHILD {
+        int id PK
+        int guardian_id FK "nullable"
+        string first_name
+        string last_name
+        date date_of_birth
+        string sex "M / F"
+        string status "ENROLLED / PENDING / WITHDRAWN"
+        date enrollment_date
+        string blood_type
+        text medical_conditions
+        text photo
+    }
+
+    HEALTHRECORD {
+        int id PK
+        int child_id FK
+        date record_date
+        decimal height_cm
+        decimal weight_kg
+        decimal temperature_c
+        text allergies
+        text notes
+        int recorded_by_id FK "nullable"
+    }
+
+    IMMUNIZATION {
+        int id PK
+        int child_id FK
+        string vaccine_name
+        int dose_number
+        date date_given
+        string administered_by
+        text notes
+        int recorded_by_id FK "nullable"
+    }
+
+    ATTENDANCE {
+        int id PK
+        int child_id FK
+        date date
+        string status "PRESENT / ABSENT / LATE"
+        string remarks
+    }
+```
+
+### 4.2 Entity Summary
+
 | Entity | Key fields | Relationships |
 |---|---|---|
 | **User** (`accounts`) | email (unique), role (PARENT/STAFF/ADMIN), contact_number (PH format), profile_photo | 1-1 with GuardianProfile (when role=PARENT) |
@@ -272,7 +402,78 @@ Account Management); Parent portal (Home, Attendance, Health Records, Immunizati
 
 ---
 
-## 5. Known Limitations
+## 5. Process Diagrams
+
+Activity diagrams for the three workflows that carry the most branching logic: account access,
+the core attendance feature, and the parent-side access-control check. All three mirror the actual
+validation order in the code (`accounts/forms.py`, `enrollment/forms.py` and `models.py`,
+`dashboard/views.py`), not an idealized version of it.
+
+### 5.1 Registration &amp; Login (FR-1.1-FR-1.6)
+
+```mermaid
+flowchart TD
+    A([Start]) --> B[Visit /accounts/register/]
+    B --> C[Fill in name, email, contact, password]
+    C --> D{Email already used, disposable,<br/>or no MX record?}
+    D -- Yes --> E[Show validation error]
+    E --> C
+    D -- No --> F{Passwords match<br/>and >= 8 characters?}
+    F -- No --> E
+    F -- Yes --> G[Create STAFF account<br/>password hashed with PBKDF2]
+    G --> H[Redirect to Login<br/>with success message]
+    H --> I[Enter email + password]
+    I --> J{Credentials valid<br/>and account active?}
+    J -- No --> K["Show generic error<br/>(no user enumeration)"]
+    K --> I
+    J -- Yes --> L[Create session]
+    L --> M{Role?}
+    M -- Staff or Admin --> N[Redirect to Staff Dashboard]
+    M -- Parent --> O[Redirect to Parent Portal]
+    N --> P([End])
+    O --> P
+```
+
+### 5.2 Record Attendance - Core Feature (FR-4.1-FR-4.4)
+
+```mermaid
+flowchart TD
+    A([Start]) --> B[Staff opens Attendance page]
+    B --> C[Select child, date, status, remarks]
+    C --> D{Date falls on<br/>Saturday or Sunday?}
+    D -- Yes --> E[Reject: weekdays only]
+    E --> C
+    D -- No --> F{Date is<br/>in the future?}
+    F -- Yes --> G[Reject: cannot be future-dated]
+    G --> C
+    F -- No --> H{Record already exists<br/>for this child + date?}
+    H -- Yes --> I[Reject: duplicate entry<br/>enforced at DB + form level]
+    I --> C
+    H -- No --> J[Save attendance record]
+    J --> K[Update dashboard counts<br/>and weekly attendance chart]
+    K --> L([End])
+```
+
+### 5.3 Parent Portal Access Control (FR-8.1-FR-8.3)
+
+```mermaid
+flowchart TD
+    A([Start]) --> B[Parent logs in]
+    B --> C[Request own child's attendance,<br/>health, or immunization page]
+    C --> D[Server looks up the GuardianProfile<br/>for the logged-in user]
+    D --> E{Guardian profile<br/>exists?}
+    E -- No --> F[Show empty state:<br/>no children linked yet]
+    E -- Yes --> G{Requested child's guardian_id<br/>matches this guardian?}
+    G -- No --> H[Return 404 Not Found<br/>never the record's data]
+    G -- Yes --> I[Render read-only records<br/>for that child]
+    F --> J([End])
+    H --> J
+    I --> J
+```
+
+---
+
+## 6. Known Limitations
 
 - The REST API does not yet expose an Immunization viewset (dashboard-only for now).
 - A child supports at most one guardian; multi-guardian households are not modeled.
